@@ -23,6 +23,8 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       
+      - name: Copy .env
+        run: mv apps/boron/.env.example apps/boron/.env
       - name: Install Dependencies
         run: pnpm install
         
