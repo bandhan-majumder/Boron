@@ -91,7 +91,7 @@ export default function BoronGPTLanding() {
         </div>
       </section> */}
 
-     {/* <div className="mb-10 flex justify-center">
+      {/* <div className="mb-10 flex justify-center">
        <Footer />
      </div> */}
     </div>

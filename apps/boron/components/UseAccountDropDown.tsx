@@ -17,9 +17,9 @@ import { auth } from "../lib/auth";
 type SessionType = typeof auth.$Infer.Session;
 
 export default function UserAccountDropDown({
-  session
+  session,
 }: {
-  session: SessionType | null
+  session: SessionType | null;
 }) {
   const user = session?.user;
   const router = useRouter();

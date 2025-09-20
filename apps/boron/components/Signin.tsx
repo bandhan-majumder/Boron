@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from '../lib/utils'
-import { Button } from '../components/ui/button'
+import { cn } from "../lib/utils";
+import { Button } from "../components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { signInWithGoogle } from "../lib/auth-client";
@@ -12,7 +12,13 @@ export default function Signin({
 }: React.ComponentProps<"div">) {
   return (
     <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-      <div className={cn("flex flex-col gap-6 w-md bg-[#191A1A] border border-[#FEFCE8] rounded-lg p-8", className)} {...props}>
+      <div
+        className={cn(
+          "flex flex-col gap-6 w-md bg-[#191A1A] border border-[#FEFCE8] rounded-lg p-8",
+          className,
+        )}
+        {...props}
+      >
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-4">
             <Link
@@ -39,12 +45,12 @@ export default function Signin({
               Prompt. Edit. Ship. Faster than you can imagine.
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-6">
-            <Button 
+            <Button
               onClick={signInWithGoogle}
-              variant="outline" 
-              type="button" 
+              variant="outline"
+              type="button"
               className="w-full bg-[#FEFCE8] text-gray-900 font-medium hover:bg-[#FEFCE8]/90 border-[#FEFCE8] flex items-center justify-center gap-3 py-6"
             >
               <svg
@@ -61,14 +67,20 @@ export default function Signin({
             </Button>
           </div>
         </div>
-        
+
         <div className="text-center text-xs text-balance text-gray-500">
           By continuing, you agree to our{" "}
-          <a href="#" className="text-blue-400 hover:text-blue-300 underline underline-offset-4">
+          <a
+            href="#"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-4"
+          >
             Terms of Service
           </a>{" "}
           and{" "}
-          <a href="#" className="text-blue-400 hover:text-blue-300 underline underline-offset-4">
+          <a
+            href="#"
+            className="text-blue-400 hover:text-blue-300 underline underline-offset-4"
+          >
             Privacy Policy
           </a>
           .

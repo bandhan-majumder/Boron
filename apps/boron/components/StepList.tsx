@@ -2,13 +2,7 @@
 
 import { Step } from "../types";
 import { CheckCircle, Circle, Clock, ChevronRight } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Progress,
-} from "./index";
+import { Card, CardContent, CardHeader, CardTitle, Progress } from "./index";
 import { Button } from "./index";
 import { Badge } from "./index";
 import { ScrollArea } from "./index";

@@ -135,8 +135,8 @@ function PricingPage() {
                 What happens to my apps if I downgrade?
               </h3>
               <p className="text-gray-300">
-                Your existing apps will continue to work. You&apos;ll just be limited
-                by your new plan&apos;s features for future apps.
+                Your existing apps will continue to work. You&apos;ll just be
+                limited by your new plan&apos;s features for future apps.
               </p>
             </div>
             <div className="border-b border-gray-700 pb-6">

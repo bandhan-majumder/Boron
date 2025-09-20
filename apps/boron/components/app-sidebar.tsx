@@ -1,5 +1,10 @@
-import * as React from "react"
-import { AudioWaveform, Command, GalleryVerticalEnd, PlusIcon } from "lucide-react"
+import * as React from "react";
+import {
+  AudioWaveform,
+  Command,
+  GalleryVerticalEnd,
+  PlusIcon,
+} from "lucide-react";
 import Image from "next/image";
 
 import {
@@ -15,8 +20,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "./index"
-import { NavUser } from "./nav-user"
+} from "./index";
+import { NavUser } from "./nav-user";
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";
 
@@ -140,12 +145,14 @@ const data = {
     //   ],
     // },
   ],
-}
+};
 
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
   return (
     <Sidebar variant="floating" {...props} className="bg-[#181818] border-none">
       <SidebarHeader className="bg-[#181818] border-none text-white">
@@ -192,7 +199,11 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                   <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive} className="text-gray-300">
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={item.isActive}
+                          className="text-gray-300"
+                        >
                           <a href={item.url}>{item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -209,5 +220,5 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

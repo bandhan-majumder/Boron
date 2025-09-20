@@ -2,8 +2,6 @@ import prismaClient from "@repo/db/client";
 
 export async function GET() {
   try {
-    
-
     const orders = await prismaClient.subscription.findMany({
       where: {
         userId: "12", // TODO: change this

@@ -47,7 +47,7 @@ export default function EditorScreen({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createMountStructure = (files: FileItem[]): Record<string, any> => {
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mountStructure: Record<string, any> = {};
 
       const processFile = (file: FileItem, isRootFolder: boolean) => {
@@ -56,11 +56,11 @@ export default function EditorScreen({
           mountStructure[file.name] = {
             directory: file.children
               ? Object.fromEntries(
-                file.children.map((child) => [
-                  child.name,
-                  processFile(child, false),
-                ]),
-              )
+                  file.children.map((child) => [
+                    child.name,
+                    processFile(child, false),
+                  ]),
+                )
               : {},
           };
         } else if (file.type === "file") {
@@ -114,9 +114,7 @@ export default function EditorScreen({
           />
         </Link>
         <div className="flex justify-center items-center flex-col">
-          <p className="text-sm font-semibold text-white">
-            building-your-app
-          </p>
+          <p className="text-sm font-semibold text-white">building-your-app</p>
         </div>
       </header>
 

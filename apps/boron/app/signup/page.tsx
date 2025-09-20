@@ -1,9 +1,9 @@
-import { GalleryVerticalEnd } from "lucide-react"
+import { GalleryVerticalEnd } from "lucide-react";
 
-import { cn } from '../../lib/utils'
-import { Button } from '../../components/index'
-import { Input } from '../../components/index'
-import { Label } from '../../components/index'
+import { cn } from "../../lib/utils";
+import { Button } from "../../components/index";
+import { Input } from "../../components/index";
+import { Label } from "../../components/index";
 
 export default function LoginForm({
   className,
@@ -78,5 +78,5 @@ export default function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
+  );
 }

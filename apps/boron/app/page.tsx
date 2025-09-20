@@ -1,16 +1,16 @@
-import { AppSidebar } from "../components/app-sidebar"
+import { AppSidebar } from "../components/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "../components/index"
-import { Separator } from "../components/index"
+} from "../components/index";
+import { Separator } from "../components/index";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../components/index"
+} from "../components/index";
 import BoronGPTLanding from "../components/screen/Landing";
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";
@@ -19,9 +19,9 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
-  if(!session) redirect("/auth");
+  if (!session) redirect("/auth");
   return (
     <SidebarProvider
       style={
@@ -41,7 +41,10 @@ export default async function Home() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#" className="text-white hover:text-white">
+                <BreadcrumbLink
+                  href="#"
+                  className="text-white hover:text-white"
+                >
                   Building Your Application
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -57,5 +60,5 @@ export default async function Home() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

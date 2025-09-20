@@ -5,7 +5,11 @@
  * content - "<command_content>"
  */
 
-import { ActionType, ResponseAfterConvert, StepAfterConvert } from "../types/index";
+import {
+  ActionType,
+  ResponseAfterConvert,
+  StepAfterConvert,
+} from "../types/index";
 
 // Uncomment and use this enum for better type safety
 export function parseBoronActions(response: string): ResponseAfterConvert {

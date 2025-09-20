@@ -20,7 +20,8 @@ function Hero() {
               <ChatInput />
             </div>
             <p className="text-sm text-gray-400 mt-3">
-              Press <span className="text-gray-200">Enter</span> or click the arrow to start{" "}
+              Press <span className="text-gray-200">Enter</span> or click the
+              arrow to start{" "}
             </p>
           </div>
         </div>

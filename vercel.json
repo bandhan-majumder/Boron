@@ -1,5 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd ../.. && pnpm install && cd packages && cd db && pnpm exec prisma generate",
-  "buildCommand": "cd ../.. && pnpm -F boron build"
-}

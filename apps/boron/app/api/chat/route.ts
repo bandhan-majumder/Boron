@@ -7,7 +7,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    
     const { messages } = await req.json();
     const model = "claude-3-5-sonnet-20241022"; // ANTHROPIC_MODEL_NAME;
     const maxTokens = 8000;

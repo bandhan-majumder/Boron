@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 export const Header = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
   return (
     <nav className="mx-auto wrapper top-0 z-50 flex items-center gap-2 py-6 w-full">
@@ -25,7 +25,7 @@ export const Header = async () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          <UserAccountDropDown session={session}/>
+          <UserAccountDropDown session={session} />
         </div>
       </div>
     </nav>

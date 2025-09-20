@@ -14,8 +14,8 @@ const queryClient = new QueryClient();
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-        <Toaster />
-        <PromptStoreProvider>{children}</PromptStoreProvider>
-      </QueryClientProvider>
+      <Toaster />
+      <PromptStoreProvider>{children}</PromptStoreProvider>
+    </QueryClientProvider>
   );
 }

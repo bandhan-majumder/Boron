@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   BadgeCheck,
@@ -7,13 +7,9 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from './index'
+import { Avatar, AvatarFallback, AvatarImage } from "./index";
 
 import {
   DropdownMenu,
@@ -23,28 +19,28 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './index'
+} from "./index";
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from './index'
+} from "./index";
 
-import { auth } from "../lib/auth"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { signOut } from "../lib/server/auth-actions"
+import { auth } from "../lib/auth";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "../lib/server/auth-actions";
 
 type SessionType = typeof auth.$Infer.Session;
 
 export function NavUser({ session }: { session: SessionType | null }) {
   const user = session?.user;
-  console.log("user is: ", user)
+  console.log("user is: ", user);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
 
   useEffect(() => {
     setMounted(true);
@@ -66,10 +62,10 @@ export function NavUser({ session }: { session: SessionType | null }) {
                 <AvatarImage
                   crossOrigin="anonymous"
                   src={user.image as string}
-                  alt={user.name || 'User avatar'}
+                  alt={user.name || "User avatar"}
                 />
                 <AvatarFallback className="rounded-lg">
-                  {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
+                  {user.name ? user.name.charAt(0).toUpperCase() : "👤"}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -91,10 +87,10 @@ export function NavUser({ session }: { session: SessionType | null }) {
                   <AvatarImage
                     crossOrigin="anonymous"
                     src={user.image as string}
-                    alt={user.name || 'User avatar'}
+                    alt={user.name || "User avatar"}
                   />
                   <AvatarFallback className="rounded-lg">
-                    {user.name ? user.name.charAt(0).toUpperCase() : '👤'}
+                    {user.name ? user.name.charAt(0).toUpperCase() : "👤"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -143,5 +139,5 @@ export function NavUser({ session }: { session: SessionType | null }) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
