@@ -8,7 +8,8 @@ import { Label } from '../../components/index'
 export default function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: any) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form>
