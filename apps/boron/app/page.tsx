@@ -1,16 +1,16 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "../components/app-sidebar"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "../components/index"
+import { Separator } from "../components/index"
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "../components/index"
 import BoronGPTLanding from "../components/screen/Landing";
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";

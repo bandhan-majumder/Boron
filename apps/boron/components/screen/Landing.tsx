@@ -1,5 +1,5 @@
 import type React from "react";
-import { Card } from "@/components/index";
+import { Card } from "../../components/index";
 import { Star, Play } from "lucide-react";
 import { Header } from "../Header";
 import Footer from "../Footer";

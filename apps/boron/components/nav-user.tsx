@@ -13,7 +13,7 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '@/components/ui/avatar'
+} from './index'
 
 import {
   DropdownMenu,
@@ -23,19 +23,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from './index'
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar'
+} from './index'
 
-import { auth } from "@/lib/auth"
+import { auth } from "../lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { signOut } from "@/lib/server/auth-actions"
+import { signOut } from "../lib/server/auth-actions"
 
 type SessionType = typeof auth.$Infer.Session;
 

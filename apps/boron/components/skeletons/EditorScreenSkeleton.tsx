@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, Skeleton } from '@/components/index';
+import { Card, CardContent, CardHeader, Skeleton } from '../../components/index';
 import LoadingBars from '../../../../packages/ui/components/ui/BarsLoading';
 import { Rocket } from 'lucide-react';
 

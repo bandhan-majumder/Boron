@@ -1,6 +1,6 @@
 {
+  "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
-    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -16,12 +16,20 @@
     "plugins": [
       {
         "name": "next"
-      }
+      },
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    "next.config.js",
+    ".next/types/**/*.ts"
+, "../../packages/ui/components/nav-main.tsx", "../../packages/ui/components/nav-projects.tsx", "../../packages/ui/components/nav-users.tsx", "../../packages/ui/components/team-switcher.tsx", "../../packages/ui/components/app-sidebar.tsx", "../../packages/ui/components/dashboard.tsx"  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

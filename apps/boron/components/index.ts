@@ -14,3 +14,7 @@ export * from "./ui/breadcrumb";
 export * from "./ui/separator";
 export * from "./ui/avatar";
 export * from "./ui/collapsible";
+export * from "./ui/sheet";
+export * from "./ui/tooltip";
+export * from "./ui/label";
+export * from "./ui/sidebar";

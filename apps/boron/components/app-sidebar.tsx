@@ -15,9 +15,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "./index"
 import { NavUser } from "./nav-user"
-import { auth } from "@/lib/auth";
+import { auth } from "../lib/auth";
 import { headers } from "next/headers";
 
 // This is sample data.
