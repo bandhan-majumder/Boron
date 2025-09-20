@@ -2,5 +2,5 @@
   "buildCommand": "cd apps/boron && pnpm run build",
   "outputDirectory": "apps/boron/.next",
   "framework": "nextjs",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "installCommand": "pnpm install && cd .. && cd .. && cd packages && cd db && pnpm exec prisma generate"
 }
