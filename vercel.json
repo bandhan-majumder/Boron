@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd apps/boron && pnpm run build",
+  "outputDirectory": "apps/boron/.next",
+  "framework": "nextjs",
+  "installCommand": "pnpm install --frozen-lockfile"
+}
