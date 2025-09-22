@@ -13,14 +13,13 @@ import {
 } from "../../../components/index";
 import ChatPage from "../../../components/screen/Landing";
 
-interface ChatPageScreenProps {
-    params: {
-        chatId: string;
-    };
+type Props = {
+    params: Promise<{ chatId: string }>
 }
 
-export default async function ChatPageScreen({ params }: ChatPageScreenProps) {
-    const { chatId } = params;
+export default async function ChatPageScreen({ params }: Props) {
+    const { chatId } = await params;
+
     return (
         <SidebarProvider
             style={
