@@ -47,6 +47,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.85.8
         version: 5.89.0(react@19.1.0)
+      '@types/node-uuid':
+        specifier: ^0.0.32
+        version: 0.0.32
       '@types/nodemailer':
         specifier: ^7.0.1
         version: 7.0.1
@@ -74,6 +77,9 @@ importers:
       next:
         specifier: 15.5.3
         version: 15.5.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      node-uuid:
+        specifier: ^1.4.8
+        version: 1.4.8
       nodemailer:
         specifier: ^7.0.6
         version: 7.0.6
@@ -1791,6 +1797,9 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
+  '@types/node-uuid@0.0.32':
+    resolution: {integrity: sha512-WLXK1lArYWwqwnpN72h7lUZzCoyZayxfHpA1WL/z82Bqa6nQZ7p518bDwH0aX/TJlnJJK/Jvgl+MEb1ipGdX/Q==}
+
   '@types/node@20.19.17':
     resolution: {integrity: sha512-gfehUI8N1z92kygssiuWvLiwcbOB3IRktR6hTDgJlXMYh5OvkPSRmgfoBUmfZt+vhwJtX7v1Yw4KvvAf7c5QKQ==}
 
@@ -2998,6 +3007,11 @@ packages:
 
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
+
+  node-uuid@1.4.8:
+    resolution: {integrity: sha512-TkCET/3rr9mUuRp+CpO7qfgT++aAxfDRaalQhwPFzI9BY/2rCDn6OfpZOVggi1AXfTPpfkTrg5f5WQx5G1uLxA==}
+    deprecated: Use uuid module instead
+    hasBin: true
 
   nodemailer@7.0.6:
     resolution: {integrity: sha512-F44uVzgwo49xboqbFgBGkRaiMgtoBrBEWCVincJPK9+S9Adkzt/wXCLKbf7dxucmxfTI5gHGB+bEmdyzN6QKjw==}
@@ -5552,6 +5566,10 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
+  '@types/node-uuid@0.0.32':
+    dependencies:
+      '@types/node': 22.18.6
+
   '@types/node@20.19.17':
     dependencies:
       undici-types: 6.21.0
@@ -6894,6 +6912,8 @@ snapshots:
       - babel-plugin-macros
 
   node-fetch-native@1.6.7: {}
+
+  node-uuid@1.4.8: {}
 
   nodemailer@7.0.6: {}
 

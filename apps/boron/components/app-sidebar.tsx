@@ -164,15 +164,15 @@ export async function AppSidebar({
                   <Image
                     crossOrigin="anonymous"
                     src={"/icon.svg"}
-                    width={60}
-                    height={60}
+                    width={80}
+                    height={80}
                     alt="logo"
                     style={{ transform: "rotate(35deg)" }}
                     className="rounded-full"
                   />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">BoronGPT</span>
+                  <span className="font-medium text-xl">BoronGPT</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -181,9 +181,9 @@ export async function AppSidebar({
       </SidebarHeader>
       <SidebarContent className="bg-[#181818] text-white">
         <div className="flex justify-end gap-3">
-          <p className="text-white">New</p>
-          <div className="flex justify-center items-center flex-col">
-            <PlusIcon size={20} className="text-white" />
+          <p className="text-white text-sm">New</p>
+          <div className="flex justify-center items-center flex-col hover:bg-[#FFFFFF] hover:text-black rounded-full">
+            <PlusIcon size={20} className="text-white hover:text-black" />
           </div>
         </div>
         <SidebarGroup>

@@ -37,7 +37,6 @@ type SessionType = typeof auth.$Infer.Session;
 
 export function NavUser({ session }: { session: SessionType | null }) {
   const user = session?.user;
-  console.log("user is: ", user);
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const { isMobile } = useSidebar();

@@ -13,7 +13,6 @@ import {
 
 // Uncomment and use this enum for better type safety
 export function parseBoronActions(response: string): ResponseAfterConvert {
-  console.log("Parsing response: ", response);
   try {
     // convert the string to json
     let parsedData = JSON.parse(response);

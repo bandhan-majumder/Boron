@@ -15,8 +15,11 @@ import { groupedModels, models } from "../prompts/helper/models";
 import { useRouter } from "next/navigation";
 import { usePromptStore } from "../providers/prompt-store-provider";
 import toast from "react-hot-toast";
+import { ChatPageProps } from "./screen/Landing";
+import {default as UUID} from "node-uuid";
 
-function ChatInput() {
+function ChatInput({ currRoute }: ChatPageProps) {
+  const slug = UUID.v4();
   const [message, setMessage] = useState<string>("");
   const router = useRouter();
 
@@ -48,7 +51,10 @@ function ChatInput() {
     setPrompt({ prompt: message.trim() });
 
     setMessage("");
-    router.push("/playground");
+
+    if (currRoute === "new") {
+      router.push(`/chat/${slug}`)
+    } else router.push("/playground");
   };
 
   const onKeyDownHandler = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -136,11 +142,10 @@ function ChatInput() {
                               setSelectedModel(model.id);
                               localStorage.setItem("model", model.id);
                             }}
-                            className={`flex items-center gap-3 cursor-pointer text-gray-300 hover:text-white hover:bg-gray-700/50 focus:bg-gray-700/50 px-3 py-2 ${
-                              selectedModel === model.id
-                                ? "bg-yellow-400/20 text-yellow-400"
-                                : ""
-                            }`}
+                            className={`flex items-center gap-3 cursor-pointer text-gray-300 hover:text-white hover:bg-gray-700/50 focus:bg-gray-700/50 px-3 py-2 ${selectedModel === model.id
+                              ? "bg-yellow-400/20 text-yellow-400"
+                              : ""
+                              }`}
                           >
                             {model.icon}
                             <span className="flex-1">{model.name}</span>
