@@ -1,31 +1,31 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupTextarea,
-} from "@/components/ui/input-group";
+} from "../ui/input-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+} from "../ui/tooltip";
+import { cn } from "../../lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
   ImageIcon,
@@ -262,7 +262,7 @@ export function PromptInputAttachment({
   return (
     <div
       className={cn(
-        "group relative h-14 w-14 rounded-md border",
+        "group relative h-14 w-14 rounded-md",
         className,
         mediaType === "image" ? "h-14 w-14" : "h-8 w-auto max-w-full"
       )}
@@ -303,7 +303,7 @@ export function PromptInputAttachment({
         onClick={() => attachments.remove(data.id)}
         size="icon"
         type="button"
-        variant="outline"
+        variant="ghost"
       >
         <XIcon className="h-3 w-3" />
       </Button>
@@ -750,7 +750,7 @@ export const PromptInput = ({
         onSubmit={handleSubmit}
         {...props}
       >
-        <InputGroup>{children}</InputGroup>
+        <InputGroup className="border-[#A1A1A1] outline-none">{children}</InputGroup>
       </form>
     </>
   );
@@ -1066,7 +1066,9 @@ export const PromptInputSpeechButton = ({
         let finalTranscript = "";
 
         for (let i = 0; i < event.results.length; i++) {
+          //@ts-ignore
           if (event.results[i].isFinal) {
+            //@ts-ignore
             finalTranscript += event.results[i][0].transcript;
           }
         }

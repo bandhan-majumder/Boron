@@ -57,7 +57,7 @@ export default async function Home() {
           </Breadcrumb>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <ChatPage currRoute="new" />
+          <ChatPage />
         </div>
       </SidebarInset>
     </SidebarProvider>
