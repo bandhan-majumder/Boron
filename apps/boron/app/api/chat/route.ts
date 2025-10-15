@@ -6,7 +6,7 @@ import { buildTemplateResponse } from "../../../lib/server/buildTemplate";
 import { google } from "@ai-sdk/google";
 
 
-export const max_duration = 40;
+const max_duration = 40;
 
 export async function POST(req: Request) {
   try {
