@@ -1,8 +1,5 @@
 /*
- * Helper function to convert the API response to a structured format of steps. Steps are having this properties;
- * type - "file" | "shell"
- * filePath - "<file_path>" - optional as shell commands does not have file path
- * content - "<command_content>"
+ * Helper function to convert the API response to a structured format of steps.
  */
 
 import {
@@ -11,60 +8,58 @@ import {
   StepAfterConvert,
 } from "../types/index";
 
-// Uncomment and use this enum for better type safety
-export function parseBoronActions(response: string): ResponseAfterConvert {
+export function parseBoronActions(response: any): ResponseAfterConvert {
   try {
-    // convert the string to json
-    let parsedData = JSON.parse(response);
+    // Handle both string and object inputs
+    let parsedData = response;
+    
+    if (typeof response === "string") {
+      parsedData = JSON.parse(response);
+    }
 
+    // Check if we have the boronArtifact wrapper
+    const boronData = parsedData?.boronArtifact || parsedData;
+
+    // Validate structure
     if (
       !(
-        parsedData &&
-        typeof parsedData === "object" &&
-        parsedData.boronActions &&
-        Array.isArray(parsedData.boronActions)
+        boronData &&
+        typeof boronData === "object" &&
+        boronData.boronActions &&
+        Array.isArray(boronData.boronActions)
       )
     ) {
+      console.error("Invalid data structure:", boronData);
       throw new Error(
-        "Invalid response format: expected object with boronActions as an array",
+        "Invalid response format: expected object with boronActions array",
       );
     }
 
-    const steps = parsedData.boronActions.map((action: any, index: number) => {
-      // Validate action type
-      if (
-        !action.type ||
-        (action.type !== ActionType.file && action.type !== ActionType.shell)
-      ) {
-        throw new Error(
-          `Invalid type at action ${index}: must be '${ActionType.file}' or '${ActionType.shell}'`,
-        );
+    const steps: StepAfterConvert[] = boronData.boronActions.map((action: any, index: number) => {
+      // Validate required fields
+      if (!action.filePath) {
+        throw new Error(`Missing filePath at action ${index}`);
       }
 
-      // Validate content
-      if (!action.content) {
+      if (action.content === undefined || action.content === null) {
         throw new Error(`Missing content at action ${index}`);
       }
 
       const step: StepAfterConvert = {
-        type: action.type,
-        filePath: undefined,
+        type: ActionType.file, // Schema only supports 'file' type
+        filePath: action.filePath,
         content:
           typeof action.content === "object"
             ? JSON.stringify(action.content, null, 2)
-            : action.content,
+            : String(action.content),
       };
-
-      // Add filePath for file actions
-      if (action.type === ActionType.file) {
-        if (!action.filePath) {
-          throw new Error(`Missing filePath for file action at index ${index}`);
-        }
-        step.filePath = action.filePath;
-      }
 
       return step;
     });
+
+    if (steps.length === 0) {
+      throw new Error("No valid actions found in response");
+    }
 
     const result: ResponseAfterConvert = {
       steps: steps,
@@ -75,6 +70,7 @@ export function parseBoronActions(response: string): ResponseAfterConvert {
 
     return result;
   } catch (error) {
+    console.error("Parse error details:", error);
     throw new Error(
       `Error parsing response: ${error instanceof Error ? error.message : "Unknown error"}`,
     );

@@ -20,7 +20,8 @@ export function CodeEditor({ file }: CodeEditorProps) {
       height="100%"
       defaultLanguage="typescript"
       theme="vs-dark"
-      value={file.content || ""}
+      //@ts-ignore
+      value={file.code || ""}
       options={{
         readOnly: false,
         minimap: { enabled: false },

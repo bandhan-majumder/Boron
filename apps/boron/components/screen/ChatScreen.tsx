@@ -1,6 +1,6 @@
 'use client';
 import Image from "next/image";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { generate } from "../../action";
 import {
   PromptInput,
@@ -13,11 +13,6 @@ import {
   PromptInputBody,
   PromptInputButton,
   type PromptInputMessage,
-  // PromptInputModelSelect,
-  // PromptInputModelSelectContent,
-  // PromptInputModelSelectItem,
-  // PromptInputModelSelectTrigger,
-  // PromptInputModelSelectValue,
   PromptInputSpeechButton,
   PromptInputSubmit,
   PromptInputTextarea,
@@ -25,21 +20,49 @@ import {
   PromptInputTools,
 } from '../ai-elements/prompt-input';
 import { readStreamableValue } from '@ai-sdk/rsc';
-import { FileText, Loader2, ChevronRight } from 'lucide-react';
+import { FileText, Loader2, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { StepAfterConvert, ActionType } from "../../types";
+import EditorScreen from "../../components/screen/EditorScreen";
 
 export const maxDuration = 30;
 
 export default function Chat() {
-  const [projectData, setProjectData] = useState<any>(null);
   const [text, setText] = useState<string>('');
   const [status, setStatus] = useState<'submitted' | 'streaming' | 'ready' | 'error'>('ready');
+  const [streamingSteps, setStreamingSteps] = useState<StepAfterConvert[]>([]);
+  const [showEditor, setShowEditor] = useState(false);
+  const [processingError, setProcessingError] = useState<string | null>(null);
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Convert streaming data to steps in real-time
+  const convertToSteps = (partialObject: any): StepAfterConvert[] => {
+    try {
+      const boronData = partialObject?.boronArtifact || partialObject;
+
+      if (!boronData?.boronActions || !Array.isArray(boronData.boronActions)) {
+        return [];
+      }
+
+      return boronData.boronActions
+        .filter((action: any) => action.filePath && action.content)
+        .map((action: any) => ({
+          type: ActionType.file,
+          filePath: action.filePath,
+          content: typeof action.content === "object"
+            ? JSON.stringify(action.content, null, 2)
+            : String(action.content),
+        }));
+    } catch (err) {
+      console.error("Error converting to steps:", err);
+      return [];
+    }
+  };
 
   const stop = () => {
     console.log('Stopping request...');
 
-    // Clear any pending timeouts
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -61,7 +84,10 @@ export default function Chat() {
       return;
     }
 
-    setProjectData(null);
+    // Reset all states for new submission
+    setStreamingSteps([]);
+    setShowEditor(false);
+    setProcessingError(null);
     setStatus('submitted');
 
     try {
@@ -73,10 +99,14 @@ export default function Chat() {
           if (!hasReceivedData) {
             setStatus('streaming');
             hasReceivedData = true;
+            setShowEditor(true); // Show editor immediately when streaming starts
           }
-          
-          console.log('Partial object:', partialObject);
-          setProjectData(partialObject);
+
+          // Convert and update steps in real-time
+          const steps = convertToSteps(partialObject);
+          if (steps.length > 0) {
+            setStreamingSteps(steps);
+          }
         }
       }
 
@@ -91,66 +121,80 @@ export default function Chat() {
     } catch (error) {
       console.error('Generation error:', error);
       setStatus('error');
-      setTimeout(() => setStatus('ready'), 2000);
+      setProcessingError(error instanceof Error ? error.message : 'Generation failed');
+      setShowEditor(false);
+      setTimeout(() => {
+        setStatus('ready');
+        setProcessingError(null);
+      }, 3000);
     }
   };
+
+  // Show editor with streaming steps
+  if (showEditor && streamingSteps.length > 0) {
+    return (
+      <EditorScreen
+        initialSteps={streamingSteps}
+        isStreaming={status === 'streaming'}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col w-full h-full">
       <div className="flex-1 overflow-y-auto p-6 pb-32">
-        {status === 'streaming' && !projectData && (
+        {status === 'submitted' && (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            <span className="ml-3 text-gray-400">Generating your project...</span>
+            <span className="ml-3 text-gray-400">Initializing...</span>
           </div>
         )}
 
-        {projectData && (
-          <div className="space-y-4">
-            {projectData.boronArtifact && (
-              <div className="bg-[#1e1e1e] rounded-lg border border-gray-700 overflow-hidden">
-                <div className="bg-[#2d2d2d] px-4 py-3 border-b border-gray-700">
-                  <h3 className="text-white font-semibold flex items-center gap-2">
-                    
-                    {projectData.boronArtifact.title}
-                  </h3>
-                </div>
+        {status === 'streaming' && streamingSteps.length === 0 && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-green-500" />
+            <span className="ml-3 text-gray-400">Generating project files...</span>
+          </div>
+        )}
 
-                <div className="divide-y divide-gray-700">
-                  {projectData.boronArtifact.boronActions?.map((action: any, idx: number) => (
-                    <details key={idx} className="group">
-                      <summary className="p-4 cursor-pointer hover:bg-[#2d2d2d] transition-colors list-none">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <ChevronRight className="w-4 h-4 text-gray-400 transition-transform group-open:rotate-90" />
-                            <span className="text-blue-400 font-mono text-sm">
-                              {action.filePath}
-                            </span>
-                          </div>
-                          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
-                            {action.type}
-                          </span>
-                        </div>
-                      </summary>
-                      
-                      <div className="px-4 pb-4">
-                        <div className="bg-[#0d1117] rounded-md overflow-hidden">
-                          <pre className="p-4 text-sm text-gray-300 overflow-x-auto">
-                            <code>{action.content}</code>
-                          </pre>
-                        </div>
-                      </div>
-                    </details>
-                  ))}
-                </div>
-              </div>
-            )}
+        {processingError && (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="text-center text-red-400 max-w-md">
+              <h2 className="text-xl font-semibold mb-2">Error</h2>
+              <p className="mb-4">{processingError}</p>
+              <button
+                onClick={() => {
+                  setProcessingError(null);
+                  setStreamingSteps([]);
+                  setShowEditor(false);
+                  setStatus('ready');
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!processingError && status === 'ready' && streamingSteps.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+            <Image
+              crossOrigin="anonymous"
+              src={"/icon.svg"}
+              width={60}
+              height={60}
+              alt="logo"
+              style={{ transform: "rotate(35deg)" }}
+              className="rounded-full"
+            />
+            <h2 className="text-2xl font-semibold mb-2">Hey, what are you building?</h2>
           </div>
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4">
-        <div className="max-w-xl mx-auto bg-[#272725]">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1a1a1a] to-transparent">
+        <div className="max-w-xl mx-auto bg-[#272725] rounded-lg shadow-lg">
           <PromptInput className='text-white' globalDrop multiple onSubmit={handleSubmit}>
             <PromptInputBody>
               <PromptInputAttachments>
@@ -160,7 +204,8 @@ export default function Chat() {
                 onChange={(e) => setText(e.target.value)}
                 ref={textareaRef}
                 value={text}
-                placeholder="Describe your project..."
+                placeholder="Describe your react project..')"
+                disabled={status === 'streaming' || status === 'submitted'}
               />
             </PromptInputBody>
             <PromptInputToolbar>
@@ -175,25 +220,6 @@ export default function Chat() {
                   onTranscriptionChange={setText}
                   textareaRef={textareaRef}
                 />
-                {/* <PromptInputButton>
-                      <GlobeIcon size={16} />
-                      <span>Search</span>
-                    </PromptInputButton> */}
-                {/* <PromptInputModelSelect onValueChange={setModel} value={model}>
-                      <PromptInputModelSelectTrigger>
-                        <PromptInputModelSelectValue />
-                      </PromptInputModelSelectTrigger>
-                      <PromptInputModelSelectContent>
-                        {models.map((modelOption) => (
-                          <PromptInputModelSelectItem
-                            key={modelOption.id}
-                            value={modelOption.id}
-                          >
-                            {modelOption.name}
-                          </PromptInputModelSelectItem>
-                        ))}
-                      </PromptInputModelSelectContent>
-                    </PromptInputModelSelect> */}
               </PromptInputTools>
               <PromptInputSubmit status={status} />
             </PromptInputToolbar>
