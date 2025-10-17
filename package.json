@@ -3,8 +3,9 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "pnpm client && turbo run dev",
     "lint": "turbo run lint",
+    "client": "cd packages/db && pnpm dlx prisma generate && cd ../..",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },

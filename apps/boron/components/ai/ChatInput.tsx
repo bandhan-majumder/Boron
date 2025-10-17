@@ -37,7 +37,9 @@ const STREAMING_TIMEOUT = 2000;
 
 const ChatInput = ({ sendMessage }: {
   // FIX LATER
-  sendMessage: any  
+  sendMessage: ({ prompt }: {
+    prompt: string
+  }) => void;
 }) => {
   const [text, setText] = useState<string>('');
   // const [model, setModel] = useState<string>(models[0].id);
@@ -75,7 +77,7 @@ const ChatInput = ({ sendMessage }: {
 
     setStatus('submitted');
 
-    sendMessage({ text: message.text})
+    sendMessage({ prompt: message.text || "Tell me a joke" })
 
     setText('');
 

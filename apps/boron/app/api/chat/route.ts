@@ -1,24 +1,27 @@
-import { createUIMessageStream, createUIMessageStreamResponse, generateText, smoothStream, stepCountIs, streamText, UIMessage } from "ai";
+import { createUIMessageStream, createUIMessageStreamResponse, generateObject, generateText, smoothStream, stepCountIs, streamText, UIMessage } from "ai";
 import type { TextBlock } from "@anthropic-ai/sdk/resources";
 import { NextResponse } from "next/server";
 import { anthropic } from "@ai-sdk/anthropic";
-import { buildTemplateResponse } from "../../../lib/server/buildTemplate";
+import { findTemplateHelper } from "../../../lib/server/buildTemplate";
 import { google } from "@ai-sdk/google";
+import z from "zod";
 
 
-const max_duration = 40;
+export const max_duration = 40;
 
 export async function POST(req: Request) {
   try {
     const { messages }: { messages: UIMessage[] } = await req.json();
-    //@ts-ignore
-    console.log(messages[0]);
-    //@ts-ignore
-    console.log(messages[0].parts[0]);
-    //@ts-ignore
-    const firstPrompt = messages[0].parts[0].text;
+    // receive msg from frontend
+    if (!messages || messages.length === 0) {
+      return NextResponse.json(
+        { message: "No messages provided" },
+        { status: 400 },
+      );
+    }
 
-    console.log("First prompt received in chat route: ", firstPrompt);
+    //@ts-ignore
+    const userPrompt = messages[0].parts[0].text;
 
     const isFirst = true; // fetch all prev messages and check if first - true for now
 
@@ -26,46 +29,36 @@ export async function POST(req: Request) {
       const system =
         "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra";
 
-      const templateResultFromAI = await generateText({
-        model: google("gemini-2.5-flash"), // anthropic('claude-3-haiku-20240307'), // fixed for this as it's a one word response
+      const { object : templateRespObj} = await generateObject({
+        model: google("gemini-2.5-flash"), // anthropic('claude-3-haiku-20240307'),
+        schema: z.object({
+          templateOf: z.enum(["react", "node"]).describe("The type of project to create"),
+        }),
         system: system,
-        prompt: firstPrompt,
+        prompt: userPrompt,
       });
 
-      console.log("result is: ", templateResultFromAI);
+      const answer = templateRespObj.templateOf.toLowerCase();
+      const template = findTemplateHelper(answer);
 
-      const answer = (templateResultFromAI.content[0] as TextBlock).text;
-
-      console.log("answer is: ", answer);
-
-      const template = buildTemplateResponse(answer, false);
-
-      console.log("template is: ", template)
       // convert everything to a single string
       const messages = template.prompts
         ? template.prompts.reduce((acc: string, promptText: string) => acc + promptText, " ")
         : "";
 
-      console.log("Final messages to be sent: ", messages);
-
       const stream = createUIMessageStream({
         execute: async ({ writer }) => {
-          const result = streamText({
+          const result = await generateObject({
             model: google("gemini-2.5-flash"), // anthropic('claude-3-haiku-20240307'),
             messages: [
               { role: "system", content: messages },
-              { role: "user", content: firstPrompt },
+              { role: "user", content: userPrompt },
             ],
-            stopWhen: stepCountIs(5),
+            schema: template.schema || z.object({ message: z.string().describe("A message that describes the unavaibility of the answer schema") }),
             temperature: 0.3,
-            experimental_transform: smoothStream(),
-            onFinish: (output) => {
-              console.log("Final output:", output);
-            },
           });
-          writer.merge(result.toUIMessageStream());
-          console.log(result.text);
-          console.log("steps are: ", JSON.stringify(result.steps, null, 2));
+          console.log("Result: ", JSON.stringify(result.object, null, 2));
+          writer.merge(result.object);
         }
       })
 

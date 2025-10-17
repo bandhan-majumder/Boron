@@ -1,28 +1,28 @@
 import { BASE_PROMPT } from "../../prompts";
 import { basePromptAsJson as nodeBasePrompt } from "../../prompts/base/node";
-import { basePromptAsJson as reactBasePrompt } from "../../prompts/base/react";
+import { reactBaseTemplateAsJson, reactBasePromptSchema  } from "../../prompts/base/react";
 
-export function buildTemplateResponse(answer: string, cached: boolean) {
+export function findTemplateHelper(answer: string) {
   if (answer === "react") {
     return {
       prompts: [
         BASE_PROMPT,
-        `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${JSON.stringify(reactBasePrompt)}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+        `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of all files in the project. Consider this as base template. Return all the files while\n${JSON.stringify(reactBaseTemplateAsJson)}\n`,
       ],
-      uiPrompts: [reactBasePrompt],
-      cached,
+      schema: reactBasePromptSchema,
+      uiPrompts: [reactBaseTemplateAsJson],
     };
   }
 
   if (answer === "node") {
     return {
       prompts: [
-        `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${JSON.stringify(nodeBasePrompt)}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+        `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${JSON.stringify(nodeBasePrompt)}\n`,
       ],
       uiPrompts: [nodeBasePrompt],
-      cached,
+      schema: reactBasePromptSchema
     };
   }
 
-  return { message: "Unable to access", status: 404 };
+  return { message: "Unable to find" };
 }

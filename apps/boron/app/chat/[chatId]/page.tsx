@@ -11,7 +11,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "../../../components/index";
-import ChatPage from "../../../components/screen/Landing";
+import ChatPage from "../../../components/screen/ChatScreen";
 
 type Props = {
     params: Promise<{ chatId: string }>

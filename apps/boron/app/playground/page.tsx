@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import EditorScreen from "../../components/screen/EditorScreen";
-import { usePromptStore } from "../../providers/prompt-store-provider";
 import { useCreateApp } from "../../hooks/query/useCreateApp";
 import { useRouter } from "next/navigation";
 import { parseBoronActions } from "../../hooks/useConvertSteps";
@@ -11,7 +10,7 @@ import EditorScreenSkeleton from "../../components/skeletons/EditorScreenSkeleto
 
 export default function PlayGround() {
   const router = useRouter();
-  const { prompt } = usePromptStore((state) => state);
+  const prompt = "";
 
   const [initialSteps, setInitialSteps] = useState<StepAfterConvert[] | null>(
     null,
