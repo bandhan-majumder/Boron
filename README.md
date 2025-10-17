@@ -31,24 +31,10 @@ then run the app by
 pnpm dev
 ```
 
-### Redis setup (Optional)
-
-```
-docker run -d \
-  --name redis-cache \
-  -p 6379:6379 \
-  redis:7.2-alpine
-```
-
 based on the url,
 your .env values will be like this;
 
 ```
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD= // null (no password)
-REDIS_DB=0 // (default)
-REDIS_URL=redis://localhost:6379
 NEXTAUTH_SECRET="your-nextauth-secret"
 // collect from here https://console.cloud.google.com/auth/clients by making a project
 GOOGLE_CLIENT_ID=

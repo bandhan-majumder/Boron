@@ -31,7 +31,7 @@ export const reactBaseTemplateAsJson : ReactBasePromptType = {
       {
         type: "file",
         filePath: ".gitignore",
-        content: "logs\n*.log\npm-debug.log*\nyarn-debug.log*\nyarn-error.log*\npnpm-debug.log*\nlerna-debug.log*\nnode_modules\ndist\ndist-ssr\n*.local\n# Editor directories and files\n.vscode/*\n!.vscode/extensions.json\n.idea\n.DS_Store\n*.suo\n*.ntvs*\n*.njsproj\n*.sln\n*.sw?",
+        content: "logs\n*.log\npm-debug.log*\nyarn-debug.log*\nyarn-error.log*\npnpm-debug.log*\nlerna-debug.log*\nnode_modules\ndist\ndist-ssr\n*.local\n.vscode/*\n!.vscode/extensions.json\n.idea\n.DS_Store\n*.suo\n*.ntvs*\n*.njsproj\n*.sln\n*.sw?",
       },
       {
         type: "file",

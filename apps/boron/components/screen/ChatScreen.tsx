@@ -193,8 +193,8 @@ export default function Chat() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#1a1a1a] to-transparent">
-        <div className="max-w-xl mx-auto bg-[#272725] rounded-lg shadow-lg">
+      <div className="flex flex-col items-center justify-center py-2">
+        <div className="w-xl mx-auto bg-[#272725] rounded-lg shadow-lg">
           <PromptInput className='text-white' globalDrop multiple onSubmit={handleSubmit}>
             <PromptInputBody>
               <PromptInputAttachments>
@@ -204,7 +204,7 @@ export default function Chat() {
                 onChange={(e) => setText(e.target.value)}
                 ref={textareaRef}
                 value={text}
-                placeholder="Describe your react project..')"
+                placeholder="Describe your react project.."
                 disabled={status === 'streaming' || status === 'submitted'}
               />
             </PromptInputBody>
