@@ -7,7 +7,7 @@ import { google } from "@ai-sdk/google";
 import z from "zod";
 
 
-export const max_duration = 40;
+// export const max_duration = 40;
 
 export async function POST(req: Request) {
   try {
@@ -58,6 +58,7 @@ export async function POST(req: Request) {
             temperature: 0.3,
           });
           console.log("Result: ", JSON.stringify(result.object, null, 2));
+          //@ts-ignore
           writer.merge(result.object);
         }
       })

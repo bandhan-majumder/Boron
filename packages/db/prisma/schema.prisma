@@ -17,7 +17,6 @@ model User {
   updatedAt     DateTime       @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
-  subscription  Subscription[]
 
   @@unique([email])
   @@map("user")
@@ -66,45 +65,4 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
-}
-
-model Subscription {
-  id                String           @id @unique @default(cuid())
-  userId            String
-  subscriptionType  SubscriptionType
-  razorpayOrderId   String           @unique
-  razorpayPaymentId String?
-  amount            Int
-  status            PaymentStatus
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  expiresAt         DateTime?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-}
-
-enum PaymentStatus {
-  PENDING
-  FAILED
-  COMPLETED
-  REFUNDED
-}
-
-model Pricing {
-  id           String           @id @default(cuid())
-  subscription SubscriptionType @unique
-  amount       Int
-  currency     String           @default("INR")
-  isActive     Boolean          @default(true)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-}
-
-enum SubscriptionType {
-  MonthlyIndividual
-  MonthlyTeam
-  MonthlyEnterprise
 }
