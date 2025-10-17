@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Signin from "../../components/Signin";
-import { auth } from "../../lib/auth";
+import { auth } from "../../lib/auth/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

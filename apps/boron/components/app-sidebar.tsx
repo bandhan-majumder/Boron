@@ -22,7 +22,7 @@ import {
   SidebarRail,
 } from "./index";
 import { NavUser } from "./nav-user";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth/auth";
 import { headers } from "next/headers";
 
 // This is sample data.
@@ -45,20 +45,20 @@ const data = {
     },
   ],
   navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Tips",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Getting Started",
+    //   url: "#",
+    //   items: [
+    //     {
+    //       title: "Tips",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Examples",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "Past Converstations",
       url: "#",
@@ -78,72 +78,6 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: "API Reference",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Components",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "File Conventions",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Functions",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "next.config.js Options",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "CLI",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Edge Runtime",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Architecture",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Accessibility",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Fast Refresh",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Next.js Compiler",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Supported Browsers",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Turbopack",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Community",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Contribution Guide",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
   ],
 };
 

@@ -1,6 +1,6 @@
-import { BASE_PROMPT } from "../../prompts";
-import { basePromptAsJson as nodeBasePrompt } from "../../prompts/base/node";
-import { reactBaseTemplateAsJson, reactBasePromptSchema  } from "../../prompts/base/react";
+import { BASE_PROMPT } from "../prompts";
+import { basePromptAsJson as nodeBasePrompt } from "../prompts/base/node";
+import { reactBaseTemplateAsJson, reactBasePromptSchema  } from "../prompts/base/react";
 
 export function findTemplateHelper(answer: string) {
   if (answer === "react") {

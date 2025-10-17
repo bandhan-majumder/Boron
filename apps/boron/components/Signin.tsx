@@ -4,7 +4,7 @@ import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { signInWithGoogle } from "../lib/auth-client";
+import { signInWithGoogle } from "../lib/auth/auth-client";
 
 export default function Signin({
   className,

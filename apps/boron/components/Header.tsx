@@ -1,7 +1,7 @@
 import Link from "next/link";
 import UserAccountDropDown from "./UseAccountDropDown";
 import Image from "next/image";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth/auth";
 import { headers } from "next/headers";
 
 export const Header = async () => {

@@ -28,7 +28,7 @@ import {
   useSidebar,
 } from "./index";
 
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "../lib/server/auth-actions";

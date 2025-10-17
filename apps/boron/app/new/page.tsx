@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
 } from "../../components/index";
 import ChatPage from "../../components/screen/ChatScreen";
-import { auth } from "../../lib/auth";
+import { auth } from "../../lib/auth/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

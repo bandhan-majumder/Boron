@@ -12,7 +12,7 @@ import { signOut } from "../lib/server/auth-actions";
 import { LogOutIcon, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import UserImage from "./UserImage";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth/auth";
 
 type SessionType = typeof auth.$Infer.Session;
 

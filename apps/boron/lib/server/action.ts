@@ -4,7 +4,7 @@ import { generateObject, streamObject } from 'ai';
 import { createStreamableValue } from '@ai-sdk/rsc';
 import { z } from 'zod';
 import { google } from '@ai-sdk/google';
-import { findTemplateHelper } from './lib/server/buildTemplate';
+import { findTemplateHelper } from '../buildTemplate';
 
 export async function generate(input: string) {
   'use server';

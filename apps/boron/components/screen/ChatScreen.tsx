@@ -1,7 +1,7 @@
 'use client';
 import Image from "next/image";
 import { useState, useRef, useEffect } from 'react';
-import { generate } from "../../action";
+import { generate } from "../../lib/server/action";
 import {
   PromptInput,
   PromptInputActionAddAttachments,
