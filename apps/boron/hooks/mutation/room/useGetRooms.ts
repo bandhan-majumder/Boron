@@ -14,10 +14,6 @@ export function useGetRooms() {
                 throw new Error("Failed to fetch rooms");
             }
         },
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        refetchOnMount: false,
         retry(failureCount, error) {
             if (failureCount < 3) {
                 return true;
