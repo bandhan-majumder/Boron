@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllChatRooms } from "../../../lib/db/room";
+import { createChatRoom, getAllChatRooms } from "../../../lib/db/room";
 
 export async function GET(req: Request) {
     try {
@@ -10,5 +10,21 @@ export async function GET(req: Request) {
         return NextResponse.json({ rooms: allRooms, status: 200 });
     } catch (err) {
         return NextResponse.json("Error fetching chats", { status: 500 });
+    }
+}
+
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const { roomName } = body;
+
+        if (!roomName) {
+            return NextResponse.json("Room name is required", { status: 400 });
+        }
+
+        const newRoom = await createChatRoom(roomName);
+        return NextResponse.json({ room: newRoom, status: 200 });
+    } catch (err) {
+        return NextResponse.json("Error creating room", { status: 500 });
     }
 }

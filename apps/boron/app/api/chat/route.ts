@@ -3,7 +3,7 @@ import { getAllChat, getLastAIChat } from "../../../lib/db/chat";
 
 export async function POST(req: Request) {
     const body = await req.json();
-    const { roomId, onlyAI = false, allRooms = false } = body;
+    const { roomId, onlyAI = false } = body;
 
     if (!roomId) {
         return NextResponse.json("roomId is required", { status: 400 });

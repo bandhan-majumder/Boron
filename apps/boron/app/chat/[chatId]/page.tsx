@@ -20,6 +20,8 @@ type Props = {
 export default async function ChatPageScreen({ params }: Props) {
     const { chatId } = await params;
 
+    console.log("chat id is: ", chatId);
+
     return (
         <SidebarProvider
             style={

@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from "react";
 import {
   AudioWaveform,
@@ -23,70 +25,27 @@ import {
 } from "./index";
 import { NavUser } from "./nav-user";
 import { auth } from "../lib/auth/auth";
-import { headers } from "next/headers";
+// import { headers } from "next/headers";
+import { useCreateRoom } from "../hooks/mutation/room/useCreateRoom";
+import { useGetRooms } from "../hooks/mutation/room/useGetRooms";
+import { useRouter } from "next/navigation";
 
-// This is sample data.
-const data = {
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    // {
-    //   title: "Getting Started",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Tips",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Examples",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    {
-      title: "Past Converstations",
-      url: "#",
-      items: [
-        {
-          title: "Bulid me a todo",
-          url: "#",
-        },
-        {
-          title: "Build me a course selling site",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Build an OS",
-          url: "#",
-        },
-      ],
-    },
-  ],
-};
+interface IRoomData {
+  id: string;
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
 
-export async function AppSidebar({
+export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { data: chatRoomsData, isLoading, isError } = useGetRooms();
+
+  console.log("data is: ", chatRoomsData);
+  const mutation = useCreateRoom();
+  const router = useRouter();
+
   return (
     <Sidebar variant="floating" {...props} className="bg-[#181818] border-none">
       <SidebarHeader className="bg-[#181818] border-none text-white">
@@ -114,44 +73,51 @@ export async function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="bg-[#181818] text-white">
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 mb-4">
           <p className="text-white text-sm">New</p>
-          <div className="flex justify-center items-center flex-col hover:bg-[#FFFFFF] hover:text-black rounded-full">
+          <div 
+            onClick={() => {
+              mutation.mutate(
+                { roomName: "new chat" },
+                {
+                  onSuccess: (data) => {
+                    console.log("mutation data id: ", data.id);
+                    router.push(`/chat/${data.id}`); 
+                  },
+                  onError: (error) => {
+                    console.error("Failed to create room:", error);
+                  }
+                }
+              );
+            }} 
+            className="flex justify-center items-center flex-col hover:bg-[#FFFFFF] hover:text-black rounded-full cursor-pointer p-1"
+          >
             <PlusIcon size={20} className="text-white hover:text-black" />
           </div>
         </div>
         <SidebarGroup>
           <SidebarMenu className="gap-2">
-            {data.navMain.map((item) => (
-              <SidebarMenuItem key={item.title}>
+            {isLoading && (
+              <div className="text-gray-400 text-sm px-2">Loading chats...</div>
+            )}
+            {isError && (
+              <div className="text-red-400 text-sm px-2">Failed to load chats</div>
+            )}
+            {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
+              <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-medium hover:bg-[#272725]">
-                    {item.title}
+                  <a href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
+                    {item.name}
                   </a>
                 </SidebarMenuButton>
-                {item.items?.length ? (
-                  <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={item.isActive}
-                          className="text-gray-300"
-                        >
-                          <a href={item.url}>{item.title}</a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                ) : null}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="bg-[#181818] text-white hover:bg-gray-900 hover:text-white">
+      {/* <SidebarFooter className="bg-[#181818] text-white hover:bg-gray-900 hover:text-white">
         <NavUser session={session} />
-      </SidebarFooter>
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   );

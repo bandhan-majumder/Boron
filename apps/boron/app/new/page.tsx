@@ -1,3 +1,5 @@
+'use client';
+
 import { AppSidebar } from "../../components/app-sidebar";
 import {
   Breadcrumb,
@@ -13,15 +15,15 @@ import {
 } from "../../components/index";
 import ChatPage from "../../components/screen/ChatScreen";
 import { auth } from "../../lib/auth/auth";
-import { headers } from "next/headers";
+// import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+export default function Home() {
+  // const session = await auth.api.getSession({
+  //   headers: await headers(),
+  // });
 
-  if (!session) redirect("/auth");
+  // if (!session) redirect("/auth");
    
   return (
     <SidebarProvider

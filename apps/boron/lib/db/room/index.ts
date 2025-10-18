@@ -9,11 +9,11 @@ export const getAllChatRooms = async () => {
     }
 }
 
-export const createChatRoom = async (name: string) => {
+export const createChatRoom = async (roomName: string) => {
     try {
         const newChatRoom = await prismaClient.chatRoom.create({
             data: {
-                name: name
+                name: roomName
             }
         })
         return newChatRoom;
