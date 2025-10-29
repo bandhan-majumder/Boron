@@ -26,7 +26,10 @@ import EditorScreen from "../../components/screen/EditorScreen";
 
 export const maxDuration = 30;
 
-export default function Chat() {
+export default function Chat({ chatRoomId, isNew }: {
+  chatRoomId?: string,
+  isNew?: boolean
+}) {
   const [text, setText] = useState<string>('');
   const [status, setStatus] = useState<'submitted' | 'streaming' | 'ready' | 'error'>('ready');
   const [streamingSteps, setStreamingSteps] = useState<StepAfterConvert[]>([]);
@@ -93,7 +96,7 @@ export default function Chat() {
     setStatus('submitted');
 
     try {
-      const { object } = await generate(message.text || '');
+      const { object } = await generate(message.text || '', chatRoomId ?? "");
       let hasReceivedData = false;
 
       for await (const partialObject of readStreamableValue(object)) {

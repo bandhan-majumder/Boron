@@ -1,3 +1,4 @@
+import { validate as isUuid } from "uuid";
 import { AppSidebar } from "../../../components/app-sidebar";
 import {
     Breadcrumb,
@@ -14,13 +15,15 @@ import {
 import ChatPage from "../../../components/screen/ChatScreen";
 
 type Props = {
-    params: Promise<{ chatId: string }>
+    params: Promise<{ chatRoomId: string }>
 }
 
 export default async function ChatPageScreen({ params }: Props) {
-    const { chatId } = await params;
+    const { chatRoomId } = await params;
 
-    console.log("chat id is: ", chatId);
+    if (!isUuid(chatRoomId)) {
+        console.log("Show 404 page as uuid is invalid");        
+    }
 
     return (
         <SidebarProvider
@@ -52,7 +55,7 @@ export default async function ChatPageScreen({ params }: Props) {
                     </Breadcrumb>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                    <ChatPage />
+                    <ChatPage chatRoomId={chatRoomId} />
                 </div>
             </SidebarInset>
         </SidebarProvider>

@@ -1,17 +1,19 @@
 'use server';
 
-import { generateObject, streamObject } from 'ai';
+import { generateObject, generateText, streamObject } from 'ai';
 import { createStreamableValue } from '@ai-sdk/rsc';
 import { z } from 'zod';
 import { google } from '@ai-sdk/google';
 import { findTemplateHelper } from '../buildTemplate';
+import { getLastAIChat } from '../db/chat';
+import { updateChatRoomName } from '../db/room';
 
-export async function generate(input: string) {
+export async function generate(input: string, chatRoomId: string) {
   'use server';
 
   const stream = createStreamableValue();
-  const system =
-    "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra";
+  // const system =
+  //   "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra";
 
   (async () => {
     // const { object: templateRespObj } = await generateObject({
@@ -24,20 +26,30 @@ export async function generate(input: string) {
     // });
 
     // const answer = templateRespObj.templateOf.toLowerCase();
-    
-    const answer = "react"; // temporary hardcode
+
+    const answer = "react";
     const template = findTemplateHelper(answer);
+    const allPrevAIMessage = await getLastAIChat(chatRoomId);
 
-    console.log("Selected template: ", template);
-      console.log("input is: ", input);
+    if (!allPrevAIMessage) {
+      generateObject({
+        model: google("gemini-2.5-flash"),
+        system: "You are a professional summarization agent. You can easily summarlize long long texts in 20 characters.",
+        prompt: input,
+        schema: z.object({
+          summarized: z.string().max(25, "Summarized text with around 22 characters.")
+        }),
+      }).then(({ object: summarizedText }) => {
+        return updateChatRoomName(chatRoomId, summarizedText.summarized);
+      }).catch(error => {
+        console.error("Failed to update chat room name:", error);
+      });
+    }
 
-    // convert everything to a single string
     const messages = template.prompts
       ? template.prompts.reduce((acc: string, promptText: string) => acc + promptText, " ")
       : "";
 
-
-    console.log("Final system messages: ", messages);
     const { partialObjectStream } = streamObject({
       model: google("gemini-2.5-flash"),
       system: messages,

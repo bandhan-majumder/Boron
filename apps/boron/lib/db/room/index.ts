@@ -2,7 +2,11 @@ import prismaClient from "@repo/db/client";
 
 export const getAllChatRooms = async () => {
     try {
-        const allChatRooms = await prismaClient.chatRoom.findMany({})
+        const allChatRooms = await prismaClient.chatRoom.findMany({
+            orderBy: {
+                updatedAt: 'desc'
+            }
+        }) // keep the recent ones in top
         return allChatRooms;
     } catch (err) {
         throw new Error("Error fetching chatrooms");
@@ -35,7 +39,7 @@ export const updateChatRoomName = async (roomId: string, newName: string) => {
         return updatedChatRoom;
     } catch (err) {
         throw new Error("Error updating chatroom name");
-    }   
+    }
 }
 
 export const deleteChatRoom = async (roomId: string) => {
