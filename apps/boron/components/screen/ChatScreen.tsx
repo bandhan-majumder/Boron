@@ -232,6 +232,7 @@ export default function ChatPage({
           assistantResponse = JSON.stringify(partialObject);
           const steps = convertToSteps(partialObject);
 
+          
           if (steps.length > 0) {
             finalSteps = steps; // Keep updating finalSteps
             setStreamingSteps(steps);
