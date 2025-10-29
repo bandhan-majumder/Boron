@@ -13,6 +13,20 @@ export const getAllChatRooms = async () => {
     }
 }
 
+export const getChatRoom = async (roomId: string) => {
+    try {
+        const chatRoom = await prismaClient.chatRoom.findFirst({
+            where: {
+                id: roomId
+            }
+        }) 
+        return chatRoom;
+    } catch (err) {
+        // chat room does not exist
+        throw new Error("Error fetching chatroom");
+    }
+}
+
 export const createChatRoom = async (roomName: string) => {
     try {
         const newChatRoom = await prismaClient.chatRoom.create({
@@ -51,6 +65,6 @@ export const deleteChatRoom = async (roomId: string) => {
         })
         return allChatRooms;
     } catch (err) {
-        throw new Error("Error fetching chatrooms");
+        throw new Error("Error deleting chatroom");
     }
 }

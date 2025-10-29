@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChatSkeleton } from "./chat-skeletons";
 import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
+import toast from "react-hot-toast";
 
 interface IRoomData {
   id: string;
@@ -48,7 +49,6 @@ export function AppSidebar({
       {
         onSuccess: async (data) => {
           router.push(`/c/${data.id}`);
-
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
         },
         onError: (error) => {
@@ -64,6 +64,7 @@ export function AppSidebar({
       {
         onSuccess: async (data) => {
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
+          toast.success("Project deleted successfully!")
         },
         onError: (error) => {
           console.error("Failed to delete room:", error);

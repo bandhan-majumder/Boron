@@ -21,13 +21,23 @@ import {
   PromptInputTools,
 } from '../ai-elements/prompt-input';
 import { readStreamableValue } from '@ai-sdk/rsc';
-import { FileText, Loader2, X, Maximize2, Code } from 'lucide-react';
+import { FileText, Loader2, X, Maximize2, Code, User, Bot } from 'lucide-react';
 import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
 import { useQueryClient } from "@tanstack/react-query";
+import { Skeleton } from "../ui/skeleton";
+import { ChatHistorySkeleton, InitializingSkeleton, GeneratingFilesSkeleton, CreatingRoomSkeleton } from "../skeletons/ChatPageSkeletons";
 
 export const maxDuration = 30;
+
+type ChatMessage = {
+  id: number;
+  chat: string;
+  sender: 'user' | 'assistant';
+  createdAt: Date;
+  steps?: StepAfterConvert[];
+};
 
 export default function ChatPage({
   chatRoomId,
@@ -42,14 +52,17 @@ export default function ChatPage({
 
   const [text, setText] = useState<string>('');
   const [status, setStatus] = useState<'submitted' | 'streaming' | 'ready' | 'error'>('ready');
-  const [streamingSteps, setStreamingSteps] = useState<StepAfterConvert[]>([]);
-  const [showEditorModal, setShowEditorModal] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
-  const [hasGeneratedFiles, setHasGeneratedFiles] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<PromptInputMessage | null>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [streamingSteps, setStreamingSteps] = useState<StepAfterConvert[]>([]);
+  const [currentStreamingMessageId, setCurrentStreamingMessageId] = useState<number | null>(null);
+  const [openEditorId, setOpenEditorId] = useState<number | null>(null);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   const createRoomHandler = async (roomName: string) => {
     return new Promise<{ id: string }>((resolve, reject) => {
@@ -58,7 +71,6 @@ export default function ChatPage({
         {
           onSuccess: (data) => {
             resolve(data)
-            // get the "new project" default chat room
             queryClient.invalidateQueries({ queryKey: ['getRoom'] });
           },
           onError: (error) => reject(error)
@@ -67,15 +79,67 @@ export default function ChatPage({
     });
   };
 
+  // Load chat history when component mounts or chatRoomId changes
+  useEffect(() => {
+    if (!isNew && chatRoomId) {
+      loadChatHistory();
+    }
+  }, [chatRoomId, isNew]);
+
+  // Auto-scroll to bottom when chat history changes
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory, streamingSteps]);
+
+  const loadChatHistory = async () => {
+    if (!chatRoomId) return;
+
+    setIsLoadingHistory(true);
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomId: chatRoomId }),
+      });
+
+      const data = await response.json();
+      if (data.chats) {
+        // Process each chat and extract steps for assistant messages
+        const processedChats = data.chats.map((chat: any) => {
+          if (chat.sender === 'assistant') {
+            try {
+              const parsed = JSON.parse(chat.chat);
+              const steps = convertToSteps(parsed);
+              return {
+                ...chat,
+                steps: steps.length > 0 ? steps : undefined
+              };
+            } catch {
+              return chat;
+            }
+          }
+          return chat;
+        });
+
+        setChatHistory(processedChats);
+      }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
   // Reset state when chatRoomId changes (navigating between chats)
   useEffect(() => {
     setStreamingSteps([]);
-    setShowEditorModal(false);
     setProcessingError(null);
-    setHasGeneratedFiles(false);
     setText('');
     setStatus('ready');
     setPendingMessage(null);
+    setChatHistory([]);
+    setCurrentStreamingMessageId(null);
+    setOpenEditorId(null);
   }, [chatRoomId]);
 
   // Cleanup timeout on unmount
@@ -91,7 +155,6 @@ export default function ChatPage({
   // Convert streaming data to steps in real-time
   const convertToSteps = useCallback((partialObject: any): StepAfterConvert[] => {
     try {
-      // get the new summarized name
       queryClient.invalidateQueries({ queryKey: ['getRoom'] });
       const boronData = partialObject?.boronArtifact || partialObject;
 
@@ -112,7 +175,7 @@ export default function ChatPage({
       console.error("Error converting to steps:", err);
       return [];
     }
-  }, []);
+  }, [queryClient]);
 
   const stop = useCallback(() => {
     console.log('Stopping request...');
@@ -123,32 +186,77 @@ export default function ChatPage({
     }
 
     setStatus('ready');
+    setCurrentStreamingMessageId(null);
+    setStreamingSteps([]);
   }, []);
 
   const processMessage = async (message: PromptInputMessage, roomId: string) => {
     setStatus('submitted');
 
+    // Add user message to UI immediately (optimistic update)
+    const userMessageId = Date.now();
+    const userMessage: ChatMessage = {
+      id: userMessageId,
+      chat: message.text || '',
+      sender: 'user',
+      createdAt: new Date(),
+    };
+    setChatHistory(prev => [...prev, userMessage]);
+
+    // Create placeholder for assistant message
+    const assistantMessageId = userMessageId + 1;
+    const assistantPlaceholder: ChatMessage = {
+      id: assistantMessageId,
+      chat: '',
+      sender: 'assistant',
+      createdAt: new Date(),
+      steps: []
+    };
+
+    setCurrentStreamingMessageId(assistantMessageId);
+    setChatHistory(prev => [...prev, assistantPlaceholder]);
+
     try {
       const { object } = await generate(message.text || '', roomId);
       let hasReceivedData = false;
+      let assistantResponse = '';
+      let finalSteps: StepAfterConvert[] = []; // Store final steps here
 
       for await (const partialObject of readStreamableValue(object)) {
         if (partialObject) {
           if (!hasReceivedData) {
             setStatus('streaming');
             hasReceivedData = true;
-            setHasGeneratedFiles(true);
           }
 
+          assistantResponse = JSON.stringify(partialObject);
           const steps = convertToSteps(partialObject);
+
           if (steps.length > 0) {
+            finalSteps = steps; // Keep updating finalSteps
             setStreamingSteps(steps);
+
+            // Update the assistant message in chat history with latest steps
+            setChatHistory(prev => prev.map(msg =>
+              msg.id === assistantMessageId
+                ? { ...msg, chat: assistantResponse, steps }
+                : msg
+            ));
           }
         }
       }
 
+      // Final update with complete response using finalSteps
+      setChatHistory(prev => prev.map(msg =>
+        msg.id === assistantMessageId
+          ? { ...msg, chat: assistantResponse, steps: finalSteps }
+          : msg
+      ));
+
       setText('');
       setStatus('ready');
+      setCurrentStreamingMessageId(null);
+      setStreamingSteps([]); // Clear streaming steps only after final update
 
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -159,7 +267,13 @@ export default function ChatPage({
       console.error('Generation error:', error);
       setStatus('error');
       setProcessingError(error instanceof Error ? error.message : 'Generation failed');
-      setHasGeneratedFiles(false);
+
+      // Remove both optimistic messages on error
+      setChatHistory(prev => prev.filter(msg =>
+        msg.id !== userMessageId && msg.id !== assistantMessageId
+      ));
+      setCurrentStreamingMessageId(null);
+      setStreamingSteps([]);
     }
   };
 
@@ -176,17 +290,14 @@ export default function ChatPage({
       return;
     }
 
-    // Reset all states for new submission
-    setStreamingSteps([]);
-    setShowEditorModal(false);
+    // Reset error states for new submission
     setProcessingError(null);
-    setHasGeneratedFiles(false);
 
     // If this is a new chat, create room first
     if (isNew) {
       setPendingMessage(message);
       setStatus('submitted');
-      
+
       try {
         const newRoom = await createRoomHandler("New project");
         router.push(`/c/${newRoom.id}`);
@@ -217,101 +328,146 @@ export default function ChatPage({
 
   const handleDismissError = useCallback(() => {
     setProcessingError(null);
-    setStreamingSteps([]);
-    setHasGeneratedFiles(false);
     setStatus('ready');
   }, []);
 
   const isLoading = status === 'submitted' || status === 'streaming';
   const isInputDisabled = isLoading;
 
+  // Get the currently opened editor's steps
+  const openEditorSteps = openEditorId
+    ? chatHistory.find(msg => msg.id === openEditorId)?.steps
+    : null;
+
   return (
     <div className="flex flex-col w-full h-full relative">
-      {/* Main Chat Screen */}
-      <div className="flex-1 overflow-y-auto p-6 pb-32">
-        {status === 'submitted' && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            <span className="ml-3 text-gray-400">
-              {isNew ? 'Creating chat room...' : 'Initializing...'}
-            </span>
-          </div>
-        )}
+      {/* Main Chat Screen - Centered */}
+      <div className="flex-1 overflow-y-auto p-6 pb-32 flex justify-center">
+        <div className="w-full max-w-4xl">
+          {/* Loading History Skeleton */}
+          {isLoadingHistory && <ChatHistorySkeleton />}
 
-        {status === 'streaming' && streamingSteps.length === 0 && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-green-500" />
-            <span className="ml-3 text-gray-400">Generating project files...</span>
-          </div>
-        )}
-
-        {/* Loader Button - Shows when files are being generated */}
-        {hasGeneratedFiles && (
-          <div className="flex items-center justify-center py-12">
-            <button
-              onClick={() => setShowEditorModal(!showEditorModal)}
-              className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-8 py-4 rounded-lg shadow-lg flex items-center gap-3 hover:bg-[#3B3B39] transition-colors"
-            >
-              {status === 'streaming' ? (
-                <>
-                  <Code className="w-5 h-5" />
-                  <span className="font-medium">Preparing editor...</span>
-                  <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                    {streamingSteps.length} files
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="w-5 h-5" />
-                  <span className="font-medium">View files in Editor</span>
-                  <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                    {streamingSteps.length} files
-                  </span>
-                </>
-              )}
-
-              {/* Animated border */}
-              <div className="absolute inset-0 rounded-lg border-2 border-white/20 group-hover:border-white/40 transition-all"></div>
-            </button>
-          </div>
-        )}
-
-        {processingError && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-2">Error</h2>
-              <p className="mb-4">{processingError}</p>
-              <button
-                onClick={handleDismissError}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Try Again
-              </button>
+          {!isLoadingHistory && chatHistory.length === 0 && <div>
+            <div className="flex justify-center items-center py-4">
+              <Image
+                crossOrigin="anonymous"
+                src={"/icon.svg"}
+                width={60}
+                height={60}
+                alt="logo"
+                style={{ transform: "rotate(35deg)" }}
+                className="rounded-full text-center"
+              />
             </div>
-          </div>
-        )}
+            <div className="text-white text-center text-4xl font-serif">What are you building today?</div>
+          </div>}
 
-        {!processingError && !hasGeneratedFiles && status === 'ready' && isNew && (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-            <Image
-              crossOrigin="anonymous"
-              src={"/icon.svg"}
-              width={60}
-              height={60}
-              alt="logo"
-              style={{ transform: "rotate(35deg)" }}
-              className="rounded-full"
-            />
-            <h2 className="text-2xl font-semibold mb-2 mt-4">
-              Hey, what are you building?
-            </h2>
-          </div>
-        )}
+          {/* Chat History */}
+          {!isLoadingHistory && chatHistory.length > 0 && (
+            <div className="space-y-6 mb-6">
+              {chatHistory.map((msg) => (
+                <div key={msg.id} className="space-y-3">
+                  <div
+                    className={`flex gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'
+                      }`}
+                  >
+                    {msg.sender === 'assistant' && (
+                      <div className="flex-shrink-0">
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+
+                    <div
+                      className={`max-w-[70%] rounded-lg p-4 ${msg.sender === 'user'
+                        ? 'bg-[#303030] text-white'
+                        : 'text-gray-100'
+                        }`}
+                    >
+                      <div className="text-sm whitespace-pre-wrap break-words">
+                        {msg.sender === 'user' ? msg.chat : (
+                          msg.id === currentStreamingMessageId && (status === 'streaming' || status === 'submitted')
+                            ? 'Generating project files...'
+                            : 'Generated project files'
+                        )}
+                      </div>
+                      <div className="text-xs opacity-60 mt-2">
+                        {new Date(msg.createdAt).toLocaleTimeString()}
+                      </div>
+                    </div>
+
+                    {msg.sender === 'user' && (
+                      <div className="flex-shrink-0">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Show editor button for each assistant message with files */}
+                  {msg.sender === 'assistant' && msg.steps && msg.steps.length > 0 && (
+                    <div className="flex justify-start ml-12">
+                      <button
+                        onClick={() => setOpenEditorId(msg.id)}
+                        className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 hover:bg-[#3B3B39] transition-colors"
+                      >
+                        {msg.id === currentStreamingMessageId && status === 'streaming' ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span className="font-medium text-sm">Preparing editor...</span>
+                            <span className="bg-white/20 px-2 py-1 rounded text-xs">
+                              {streamingSteps.length} files
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Maximize2 className="w-4 h-4" />
+                            <span className="font-medium text-sm">View Files in Editor</span>
+                            <span className="bg-white/20 px-2 py-1 rounded text-xs">
+                              {msg.steps.length} files
+                            </span>
+                          </>
+                        )}
+                        <div className="absolute inset-0 rounded-lg border-2 border-white/20 group-hover:border-white/40 transition-all"></div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+
+          {status === 'submitted' && chatHistory.length === 0 && isNew && (
+            <CreatingRoomSkeleton />
+          )}
+
+          {status === 'submitted' && chatHistory.length === 0 && !isNew && (
+            <InitializingSkeleton />
+          )}
+
+          {status === 'streaming' && streamingSteps.length === 0 && (
+            <GeneratingFilesSkeleton />
+          )}
+
+          {processingError && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
+                <h2 className="text-xl font-semibold mb-2">Error</h2>
+                <p className="mb-4">{processingError}</p>
+                <button
+                  onClick={handleDismissError}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Input Section - Fixed at bottom */}
-      <div className="flex flex-col items-center justify-center py-2">
-        <div className="w-xl mx-auto bg-[#272725] rounded-lg shadow-lg">
+      {/* Input Section - Fixed at bottom and centered */}
+      <div className="flex flex-col items-center justify-center py-2 px-6">
+        <div className="w-full max-w-2xl bg-[#272725] rounded-lg shadow-lg">
           <PromptInput className='text-white' globalDrop multiple onSubmit={handleSubmit}>
             <PromptInputBody>
               <PromptInputAttachments>
@@ -321,7 +477,6 @@ export default function ChatPage({
                 onChange={(e) => setText(e.target.value)}
                 ref={textareaRef}
                 value={text}
-                placeholder="Describe your react project.."
                 disabled={isInputDisabled}
               />
             </PromptInputBody>
@@ -345,15 +500,14 @@ export default function ChatPage({
       </div>
 
       {/* Full Screen Editor Modal */}
-      {showEditorModal && streamingSteps.length > 0 && (
+      {openEditorId !== null && openEditorSteps && openEditorSteps.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="absolute inset-0 bg-[#1a1a1a] animate-in slide-in-from-bottom duration-300 flex flex-col">
-            {/* Top Bar with Close Button */}
             <div className="flex-shrink-0 bg-[#2d2d2d] border-b border-gray-700 px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-blue-500" />
                 <span className="font-semibold text-white">Project Editor</span>
-                {status === 'streaming' && (
+                {openEditorId === currentStreamingMessageId && status === 'streaming' && (
                   <div className="flex items-center gap-2 text-xs text-green-400 bg-green-500/10 px-3 py-1 rounded-full">
                     <Loader2 className="w-3 h-3 animate-spin" />
                     <span>Generating...</span>
@@ -362,7 +516,7 @@ export default function ChatPage({
               </div>
 
               <button
-                onClick={() => setShowEditorModal(false)}
+                onClick={() => setOpenEditorId(null)}
                 className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transition-colors flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
@@ -373,8 +527,8 @@ export default function ChatPage({
             {/* Editor Content */}
             <div className="flex-1 overflow-hidden">
               <EditorScreen
-                initialSteps={streamingSteps}
-                isStreaming={status === 'streaming'}
+                initialSteps={openEditorId === currentStreamingMessageId ? streamingSteps : openEditorSteps}
+                isStreaming={openEditorId === currentStreamingMessageId && status === 'streaming'}
               />
             </div>
           </div>
