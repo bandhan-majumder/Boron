@@ -1,6 +1,6 @@
 'use client';
 import Image from "next/image";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { generate } from "../../lib/server/action";
 import {
   PromptInput,
@@ -40,8 +40,28 @@ export default function Chat({ chatRoomId, isNew }: {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Reset state when chatRoomId changes (navigating between chats)
+  useEffect(() => {
+    setStreamingSteps([]);
+    setShowEditorModal(false);
+    setProcessingError(null);
+    setHasGeneratedFiles(false);
+    setText('');
+    setStatus('ready');
+  }, [chatRoomId]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
   // Convert streaming data to steps in real-time
-  const convertToSteps = (partialObject: any): StepAfterConvert[] => {
+  const convertToSteps = useCallback((partialObject: any): StepAfterConvert[] => {
     try {
       const boronData = partialObject?.boronArtifact || partialObject;
 
@@ -62,9 +82,9 @@ export default function Chat({ chatRoomId, isNew }: {
       console.error("Error converting to steps:", err);
       return [];
     }
-  };
+  }, []);
 
-  const stop = () => {
+  const stop = useCallback(() => {
     console.log('Stopping request...');
 
     if (timeoutRef.current) {
@@ -73,7 +93,7 @@ export default function Chat({ chatRoomId, isNew }: {
     }
 
     setStatus('ready');
-  };
+  }, []);
 
   const handleSubmit = async (message: PromptInputMessage) => {
     if (status === 'streaming' || status === 'submitted') {
@@ -127,12 +147,18 @@ export default function Chat({ chatRoomId, isNew }: {
       setStatus('error');
       setProcessingError(error instanceof Error ? error.message : 'Generation failed');
       setHasGeneratedFiles(false);
-      setTimeout(() => {
-        setStatus('ready');
-        setProcessingError(null);
-      }, 3000);
     }
   };
+
+  const handleDismissError = useCallback(() => {
+    setProcessingError(null);
+    setStreamingSteps([]);
+    setHasGeneratedFiles(false);
+    setStatus('ready');
+  }, []);
+
+  const isLoading = status === 'submitted' || status === 'streaming';
+  const isInputDisabled = isLoading;
 
   return (
     <div className="flex flex-col w-full h-full relative">
@@ -157,7 +183,7 @@ export default function Chat({ chatRoomId, isNew }: {
           <div className="flex items-center justify-center py-12">
             <button
               onClick={() => setShowEditorModal(!showEditorModal)}
-              className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-8 py-4 rounded-lg shadow-lg flex items-center gap-3"
+              className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-8 py-4 rounded-lg shadow-lg flex items-center gap-3 hover:bg-[#3B3B39] transition-colors"
             >
               {status === 'streaming' ? (
                 <>
@@ -185,16 +211,11 @@ export default function Chat({ chatRoomId, isNew }: {
 
         {processingError && (
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="text-center text-red-400 max-w-md">
+            <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-2">Error</h2>
               <p className="mb-4">{processingError}</p>
               <button
-                onClick={() => {
-                  setProcessingError(null);
-                  setStreamingSteps([]);
-                  setHasGeneratedFiles(false);
-                  setStatus('ready');
-                }}
+                onClick={handleDismissError}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
                 Try Again
@@ -214,7 +235,9 @@ export default function Chat({ chatRoomId, isNew }: {
               style={{ transform: "rotate(35deg)" }}
               className="rounded-full"
             />
-            <h2 className="text-2xl font-semibold mb-2">Hey, what are you building?</h2>
+            <h2 className="text-2xl font-semibold mb-2 mt-4">
+               Hey, what are you building?
+            </h2>
           </div>
         )}
       </div>
@@ -232,7 +255,7 @@ export default function Chat({ chatRoomId, isNew }: {
                 ref={textareaRef}
                 value={text}
                 placeholder="Describe your react project.."
-                disabled={status === 'streaming' || status === 'submitted'}
+                disabled={isInputDisabled}
               />
             </PromptInputBody>
             <PromptInputToolbar>

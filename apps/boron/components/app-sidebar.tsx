@@ -2,26 +2,20 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
   PlusIcon,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   Separator,
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
 } from "./index";
 import { NavUser } from "./nav-user";
@@ -47,16 +41,14 @@ export function AppSidebar({
   const mutation = useCreateRoom();
   const router = useRouter();
 
-  const handleCreateNewRoom = () => {
+  const handleCreateNewRoom = async () => {
     mutation.mutate(
-      { roomName: "new chat" },
+      { roomName: "new project" },
       {
-        onSuccess: (data) => {
-          console.log("mutation data id: ", data.id);
-          // Invalidate and refetch rooms list
-          queryClient.invalidateQueries({ queryKey: ['rooms'] }); // Adjust the queryKey to match your useGetRooms hook
-          // Navigate to the new room
+        onSuccess: async (data) => {
           router.push(`/chat/${data.id}`);
+
+          queryClient.invalidateQueries({ queryKey: ['getRoom'] });
         },
         onError: (error) => {
           console.error("Failed to create room:", error);
@@ -71,7 +63,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem className="bg-none hover:none">
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/new">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Image
                     crossOrigin="anonymous"
@@ -86,14 +78,14 @@ export function AppSidebar({
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium text-xl">BoronGPT</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-[#181818] text-white">
+      <SidebarContent className="bg-[#181818] text-white pt-5">
         <div className="flex justify-between mx-1">
-          <p className="text-white flex flex-col justify-center items-center text-lg font-semibold">Chats</p>
+          <p className="text-white flex flex-col justify-center items-center text-lg font-semibold">Previous Projects</p>
           <button
             onClick={handleCreateNewRoom}
             disabled={mutation.isPending}
@@ -102,7 +94,7 @@ export function AppSidebar({
             <PlusIcon size={20} className="text-white hover:text-black" />
           </button>
         </div>
-         <Separator />
+        <Separator />
         <SidebarGroup>
           <SidebarMenu className="gap-2">
             {isLoading && (
@@ -113,12 +105,13 @@ export function AppSidebar({
             {isError && (
               <div className="text-red-400 text-sm px-2">Failed to load chats</div>
             )}
+            {!chatRoomsData || chatRoomsData.length === 0 && <div className="text-gray-400 text-center">No project found. Create one!</div>}
             {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild>
-                  <a href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
+                  <Link href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
                     {item.name}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

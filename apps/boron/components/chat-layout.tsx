@@ -1,30 +1,20 @@
-'use client';
-
-import { AppSidebar } from "../../components/app-sidebar";
+import { AppSidebar } from "./app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "../../components/index";
-import { Separator } from "../../components/index";
-import {
+  Separator,
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "../../components/index";
-import ChatPage from "../../components/screen/ChatScreen";
-import { auth } from "../../lib/auth/auth";
-// import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+} from "./index";
 
-export default function Home() {
-  // const session = await auth.api.getSession({
-  //   headers: await headers(),
-  // });
+type ChatLayoutProps = {
+  children: React.ReactNode;
+};
 
-  // if (!session) redirect("/auth");
-   
+export function ChatLayout({ children }: ChatLayoutProps) {
   return (
     <SidebarProvider
       style={
@@ -55,7 +45,7 @@ export default function Home() {
           </Breadcrumb>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <ChatPage isNew={true} />
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>
