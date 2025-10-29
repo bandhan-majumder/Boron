@@ -1,5 +1,5 @@
 {
-  "name": "borongpt",
+  "name": "boron",
   "private": true,
   "scripts": {
     "build": "turbo run build",

@@ -12,6 +12,7 @@ import {
   Separator,
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -26,6 +27,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChatSkeleton } from "./chat-skeletons";
 import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
 import toast from "react-hot-toast";
+import { NavUser, SessionType } from "./nav-user";
 
 interface IRoomData {
   id: string;
@@ -34,9 +36,11 @@ interface IRoomData {
   createdAt: string;
 }
 
-export function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  session: SessionType | null;
+}
+
+export function AppSidebar({ session, ...props }: AppSidebarProps) {
   const { data: chatRoomsData, isLoading, isError } = useGetRooms();
   const queryClient = useQueryClient();
   const mutationCreateRoom = useCreateRoom();
@@ -94,7 +98,7 @@ export function AppSidebar({
                   />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium text-xl">BoronGPT</span>
+                  <span className="font-medium text-xl">Boron</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -143,9 +147,9 @@ export function AppSidebar({
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      {/* <SidebarFooter className="bg-[#181818] text-white hover:bg-gray-900 hover:text-white">
+      <SidebarFooter className="text-black">
         <NavUser session={session} />
-      </SidebarFooter> */}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

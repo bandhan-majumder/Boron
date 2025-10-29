@@ -6,7 +6,6 @@
       "env": [
         "ANTHROPIC_API_KEY",
         "ANTHROPIC_MODEL_NAME",
-        "NEXTAUTH_SECRET",
         "GOOGLE_CLIENT_ID",
         "GOOGLE_CLIENT_SECRET",
         "BETTER_AUTH_SECRET",

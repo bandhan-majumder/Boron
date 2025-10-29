@@ -39,7 +39,7 @@ export default function Signin({
             </Link>
             <div className="flex flex-col items-center gap-2">
               <div className="text-2xl text-gray-200 italic">Welcome to</div>
-              <div className="text-3xl font-bold text-[#FEFCE8]">BoronGPT</div>
+              <div className="text-3xl font-bold text-[#FEFCE8]">Boron</div>
             </div>
             <div className="text-center text-sm text-gray-300">
               Prompt. Edit. Ship. Faster than you can imagine.

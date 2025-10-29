@@ -8,7 +8,7 @@ const Footer = () => {
   return (
     <footer className="py-8 sm:py-12 px-4 text-white bg-[#272725] max-w-[70vw] rounded-2xl min-w-[65vw]">
       <div className="container mx-auto max-w-6xl">
-        <div className="text-xl mb-4 font-semibold">BoronGPT</div>
+        <div className="text-xl mb-4 font-semibold">Boron</div>
 
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 sm:mb-10 mt-10">
           <div className="flex flex-wrap justify-center md:justify-start gap-2 md:gap-4 w-full md:w-auto mb-6 md:mb-0">
@@ -65,7 +65,7 @@ const Footer = () => {
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center justify-center sm:justify-end w-full sm:w-auto order-4 sm:order-4">
             <div className="text-xs sm:text-sm text-gray-400 order-2 sm:order-3">
-              BoronGPT © 2025
+              Boron © 2025
             </div>
           </div>
         </div>
@@ -96,7 +96,7 @@ const Footer = () => {
                 WebkitTextStroke: "1px rgba(255, 255, 255, 1)",
               }}
             >
-              boronGPT
+              boron
             </h1>
           </div>
         </div>

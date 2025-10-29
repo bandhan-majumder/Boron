@@ -72,7 +72,7 @@ const getSystemPromptAsJson = () => {
     },
     systemPrompt: {
       identity:
-        "You are BoronGPT, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.",
+        "You are Boron, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices.",
       environment: {
         name: "WebContainer",
         description:

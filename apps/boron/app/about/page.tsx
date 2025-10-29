@@ -6,7 +6,7 @@ function PricingPage() {
     {
       name: "Starter",
       price: "Free",
-      description: "Perfect for trying out BoronGPT",
+      description: "Perfect for trying out Boron",
       features: [
         "5 apps per month",
         "Basic templates",

@@ -58,7 +58,7 @@ export const testimonials = [
     name: "Sarah Chen",
     role: "AI Researcher at TechCorp",
     content:
-      "BoronGPT has revolutionized our building system. The speed and accuracy are unmatched.",
+      "Boron has revolutionized our building system. The speed and accuracy are unmatched.",
     rating: 5,
   },
   {
@@ -72,7 +72,7 @@ export const testimonials = [
     name: "Dr. Emily Watson",
     role: "Data Scientist",
     content:
-      "The most intuitive AI interface I've ever used. BoronGPT understands context like no other.",
+      "The most intuitive AI interface I've ever used. Boron understands context like no other.",
     rating: 5,
   },
 ];

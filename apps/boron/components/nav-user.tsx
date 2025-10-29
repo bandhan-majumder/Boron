@@ -33,9 +33,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "../lib/server/auth-actions";
 
-type SessionType = typeof auth.$Infer.Session;
+export type SessionType = typeof auth.$Infer.Session;
 
 export function NavUser({ session }: { session: SessionType | null }) {
+  console.log("Session is: ", session)
   const user = session?.user;
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -98,7 +99,7 @@ export function NavUser({ session }: { session: SessionType | null }) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            {/* <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
@@ -120,7 +121,7 @@ export function NavUser({ session }: { session: SessionType | null }) {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuItem
               onClick={async () => {
                 try {

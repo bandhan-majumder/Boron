@@ -2,15 +2,15 @@
 
 <img src="assets/image.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
 
-### BoronGPT - A GPT wrapper that actually builds your MVP
+### Boron - A GPT wrapper that actually builds your MVP (and previews it)
 
 </div>
 
 ### Dev Setup
 
 ```
-git clone https://github.com/bandhan-majumder/BoronGPT
-cd BoronGPT
+git clone https://github.com/bandhan-majumder/Boron
+cd Boron
 ```
 
 then, install al the dependencies with
@@ -19,10 +19,10 @@ then, install al the dependencies with
 pnpm install
 ```
 
-add your Claude-API key and preferred model anme to the .env file by copying
+add your Gemini-API key to the .env file by copying
 
 ```
-mv apps/web/.env.example .env
+mv apps/boron/.env.example .env
 ```
 
 then run the app by

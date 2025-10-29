@@ -6,5 +6,4 @@ export const SMTP_USER = process.env.SMTP_USER;
 export const SMTP_PASS = process.env.SMTP_PASS;
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
-export const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || "mAchIne";
 export const NODE_ENV = process.env.NODE_ENV || "development";
