@@ -2,7 +2,7 @@
 
 import { WebContainer } from "@webcontainer/api";
 import React, { useEffect, useState } from "react";
-import LoadingBars from "../../../packages/ui/components/ui/BarsLoading";
+import LoadingBars from "./ui/BarsLoading";
 
 interface PreviewFrameProps {
   // files: any[];
@@ -95,6 +95,7 @@ export function PreviewFrame({ webContainer }: PreviewFrameProps) {
             <LoadingBars />
           </div>
           <p>Loading preview...</p>
+          <p>It generally takes around 1-2 mintues. Please wait!</p>
         </div>
       )}
       {!isLoading && url && (

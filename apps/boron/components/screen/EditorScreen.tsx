@@ -190,8 +190,7 @@ export default function EditorScreen({
           <div className="text-center">
             <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
             <p>Loading preview...</p>
-            <p>please wait till the installation completes</p>
-            <p>screen will appear when it's ready</p>
+            <p>It generally takes around 1-2 mintues. Please wait!</p>
           </div>
         </div>
       );
