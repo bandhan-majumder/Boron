@@ -146,7 +146,6 @@ export default function EditorScreen({
           <div
             key={fullPath}
             onClick={() => {
-              console.log("value is: ", value);
               setSelectedFile(value)
             }}
             className={`

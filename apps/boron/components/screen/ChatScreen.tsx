@@ -189,7 +189,7 @@ export default function ChatPage({
       
       try {
         const newRoom = await createRoomHandler("New project");
-        router.push(`/chat/${newRoom.id}`);
+        router.push(`/c/${newRoom.id}`);
         sessionStorage.setItem('pendingMessage', JSON.stringify(message));
       } catch (error) {
         console.error('Failed to create room:', error);

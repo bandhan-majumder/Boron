@@ -1,5 +1,4 @@
 import { BASE_PROMPT } from "../prompts";
-import { basePromptAsJson as nodeBasePrompt } from "../prompts/base/node";
 import { reactBaseTemplateAsJson, reactBasePromptSchema  } from "../prompts/base/react";
 
 export function findTemplateHelper(answer: string) {
@@ -11,16 +10,6 @@ export function findTemplateHelper(answer: string) {
       ],
       schema: reactBasePromptSchema,
       uiPrompts: [reactBaseTemplateAsJson],
-    };
-  }
-
-  if (answer === "node") {
-    return {
-      prompts: [
-        `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${JSON.stringify(nodeBasePrompt)}\n`,
-      ],
-      uiPrompts: [nodeBasePrompt],
-      schema: reactBasePromptSchema
     };
   }
 

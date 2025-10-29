@@ -47,7 +47,7 @@ export function AppSidebar({
       { roomName: "new project" },
       {
         onSuccess: async (data) => {
-          router.push(`/chat/${data.id}`);
+          router.push(`/c/${data.id}`);
 
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
         },
@@ -63,7 +63,6 @@ export function AppSidebar({
       { roomId: roomId },
       {
         onSuccess: async (data) => {
-          console.log("Data is: ", data)
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
         },
         onError: (error) => {
@@ -128,7 +127,7 @@ export function AppSidebar({
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild>
                   <div className="flex justify-between">
-                    <Link href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
+                    <Link href={`/c/${item.id}`} className="font-medium hover:bg-[#272725]">
                       {item.name}
                     </Link>
                     <div className="text-red-700 hidden group-hover:block">

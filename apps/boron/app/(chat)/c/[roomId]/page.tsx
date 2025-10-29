@@ -2,15 +2,15 @@ import { validate as isUuid } from "uuid";
 import ChatPage from "../../../../components/screen/ChatScreen";
 
 type Props = {
-    params: Promise<{ chatRoomId: string }>
+    params: Promise<{ roomId: string }>
 }
 
 export default async function ChatPageScreen({ params }: Props) {
-    const { chatRoomId } = await params;
+    const { roomId } = await params;
 
-    if (!isUuid(chatRoomId)) {
+    if (!isUuid(roomId)) {
         console.log("Show 404 page as uuid is invalid");        
     }
 
-    return <ChatPage chatRoomId={chatRoomId} />;
+    return <ChatPage chatRoomId={roomId} />;
 }
