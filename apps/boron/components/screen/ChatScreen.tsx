@@ -1,6 +1,7 @@
 'use client';
 import Image from "next/image";
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { generate } from "../../lib/server/action";
 import {
   PromptInput,
@@ -20,25 +21,51 @@ import {
   PromptInputTools,
 } from '../ai-elements/prompt-input';
 import { readStreamableValue } from '@ai-sdk/rsc';
-import { FileText, Loader2, ChevronRight, CheckCircle2, X, Maximize2, Code } from 'lucide-react';
+import { FileText, Loader2, X, Maximize2, Code } from 'lucide-react';
 import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
+import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const maxDuration = 30;
 
-export default function Chat({ chatRoomId, isNew }: {
+export default function ChatPage({
+  chatRoomId,
+  isNew,
+}: {
   chatRoomId?: string,
-  isNew?: boolean
+  isNew?: boolean,
 }) {
+  const router = useRouter();
+  const mutation = useCreateRoom();
+  const queryClient = useQueryClient();
+
   const [text, setText] = useState<string>('');
   const [status, setStatus] = useState<'submitted' | 'streaming' | 'ready' | 'error'>('ready');
   const [streamingSteps, setStreamingSteps] = useState<StepAfterConvert[]>([]);
   const [showEditorModal, setShowEditorModal] = useState(false);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const [hasGeneratedFiles, setHasGeneratedFiles] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<PromptInputMessage | null>(null);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const createRoomHandler = async (roomName: string) => {
+    return new Promise<{ id: string }>((resolve, reject) => {
+      mutation.mutate(
+        { roomName },
+        {
+          onSuccess: (data) => {
+            resolve(data)
+            // get the "new project" default chat room
+            queryClient.invalidateQueries({ queryKey: ['getRoom'] });
+          },
+          onError: (error) => reject(error)
+        }
+      );
+    });
+  };
 
   // Reset state when chatRoomId changes (navigating between chats)
   useEffect(() => {
@@ -48,6 +75,7 @@ export default function Chat({ chatRoomId, isNew }: {
     setHasGeneratedFiles(false);
     setText('');
     setStatus('ready');
+    setPendingMessage(null);
   }, [chatRoomId]);
 
   // Cleanup timeout on unmount
@@ -63,6 +91,8 @@ export default function Chat({ chatRoomId, isNew }: {
   // Convert streaming data to steps in real-time
   const convertToSteps = useCallback((partialObject: any): StepAfterConvert[] => {
     try {
+      // get the new summarized name
+      queryClient.invalidateQueries({ queryKey: ['getRoom'] });
       const boronData = partialObject?.boronArtifact || partialObject;
 
       if (!boronData?.boronActions || !Array.isArray(boronData.boronActions)) {
@@ -95,28 +125,11 @@ export default function Chat({ chatRoomId, isNew }: {
     setStatus('ready');
   }, []);
 
-  const handleSubmit = async (message: PromptInputMessage) => {
-    if (status === 'streaming' || status === 'submitted') {
-      stop();
-      return;
-    }
-
-    const hasText = Boolean(message.text);
-    const hasAttachments = Boolean(message.files?.length);
-
-    if (!(hasText || hasAttachments)) {
-      return;
-    }
-
-    // Reset all states for new submission
-    setStreamingSteps([]);
-    setShowEditorModal(false);
-    setProcessingError(null);
-    setHasGeneratedFiles(false);
+  const processMessage = async (message: PromptInputMessage, roomId: string) => {
     setStatus('submitted');
 
     try {
-      const { object } = await generate(message.text || '', chatRoomId ?? "");
+      const { object } = await generate(message.text || '', roomId);
       let hasReceivedData = false;
 
       for await (const partialObject of readStreamableValue(object)) {
@@ -150,6 +163,58 @@ export default function Chat({ chatRoomId, isNew }: {
     }
   };
 
+  const handleSubmit = async (message: PromptInputMessage) => {
+    if (status === 'streaming' || status === 'submitted') {
+      stop();
+      return;
+    }
+
+    const hasText = Boolean(message.text);
+    const hasAttachments = Boolean(message.files?.length);
+
+    if (!(hasText || hasAttachments)) {
+      return;
+    }
+
+    // Reset all states for new submission
+    setStreamingSteps([]);
+    setShowEditorModal(false);
+    setProcessingError(null);
+    setHasGeneratedFiles(false);
+
+    // If this is a new chat, create room first
+    if (isNew) {
+      setPendingMessage(message);
+      setStatus('submitted');
+      
+      try {
+        const newRoom = await createRoomHandler("New project");
+        router.push(`/chat/${newRoom.id}`);
+        sessionStorage.setItem('pendingMessage', JSON.stringify(message));
+      } catch (error) {
+        console.error('Failed to create room:', error);
+        setStatus('error');
+        setProcessingError('Failed to create chat room');
+        setPendingMessage(null);
+      }
+    } else {
+      // Normal flow - process message in existing room
+      await processMessage(message, chatRoomId ?? "");
+    }
+  };
+
+  // Process pending message after navigation
+  useEffect(() => {
+    if (!isNew && chatRoomId) {
+      const pending = sessionStorage.getItem('pendingMessage');
+      if (pending) {
+        sessionStorage.removeItem('pendingMessage');
+        const message = JSON.parse(pending) as PromptInputMessage;
+        processMessage(message, chatRoomId);
+      }
+    }
+  }, [isNew, chatRoomId]);
+
   const handleDismissError = useCallback(() => {
     setProcessingError(null);
     setStreamingSteps([]);
@@ -167,7 +232,9 @@ export default function Chat({ chatRoomId, isNew }: {
         {status === 'submitted' && (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-            <span className="ml-3 text-gray-400">Initializing...</span>
+            <span className="ml-3 text-gray-400">
+              {isNew ? 'Creating chat room...' : 'Initializing...'}
+            </span>
           </div>
         )}
 
@@ -224,7 +291,7 @@ export default function Chat({ chatRoomId, isNew }: {
           </div>
         )}
 
-        {!processingError && !hasGeneratedFiles && status === 'ready' && (
+        {!processingError && !hasGeneratedFiles && status === 'ready' && isNew && (
           <div className="flex flex-col items-center justify-center py-12 text-gray-400">
             <Image
               crossOrigin="anonymous"
@@ -236,7 +303,7 @@ export default function Chat({ chatRoomId, isNew }: {
               className="rounded-full"
             />
             <h2 className="text-2xl font-semibold mb-2 mt-4">
-               Hey, what are you building?
+              Hey, what are you building?
             </h2>
           </div>
         )}

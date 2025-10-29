@@ -3,6 +3,7 @@
 import * as React from "react";
 import {
   PlusIcon,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,13 +19,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "./index";
-import { NavUser } from "./nav-user";
-import { auth } from "../lib/auth/auth";
 import { useCreateRoom } from "../hooks/mutation/room/useCreateRoom";
 import { useGetRooms } from "../hooks/mutation/room/useGetRooms";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChatSkeleton } from "./chat-skeletons";
+import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
 
 interface IRoomData {
   id: string;
@@ -38,11 +38,12 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const { data: chatRoomsData, isLoading, isError } = useGetRooms();
   const queryClient = useQueryClient();
-  const mutation = useCreateRoom();
+  const mutationCreateRoom = useCreateRoom();
+  const mutationDeleteRoom = useDeleteRoom();
   const router = useRouter();
 
   const handleCreateNewRoom = async () => {
-    mutation.mutate(
+    mutationCreateRoom.mutate(
       { roomName: "new project" },
       {
         onSuccess: async (data) => {
@@ -56,6 +57,23 @@ export function AppSidebar({
       }
     );
   };
+
+  const handleDeleteRoom = async (roomId: string) => {
+    mutationDeleteRoom.mutate(
+      { roomId: roomId },
+      {
+        onSuccess: async (data) => {
+          console.log("Data is: ", data)
+          queryClient.invalidateQueries({ queryKey: ['getRoom'] });
+        },
+        onError: (error) => {
+          console.error("Failed to delete room:", error);
+        }
+      }
+    );
+  };
+
+
 
   return (
     <Sidebar variant="floating" {...props} className="bg-[#181818] border-none">
@@ -88,7 +106,7 @@ export function AppSidebar({
           <p className="text-white flex flex-col justify-center items-center text-lg font-semibold">Previous Projects</p>
           <button
             onClick={handleCreateNewRoom}
-            disabled={mutation.isPending}
+            disabled={mutationCreateRoom.isPending}
             className="flex justify-center items-center hover:bg-[#FFFFFF] hover:text-black rounded-full cursor-pointer p-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <PlusIcon size={20} className="text-white hover:text-black" />
@@ -109,9 +127,16 @@ export function AppSidebar({
             {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
               <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild>
-                  <Link href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
-                    {item.name}
-                  </Link>
+                  <div className="flex justify-between">
+                    <Link href={`/chat/${item.id}`} className="font-medium hover:bg-[#272725]">
+                      {item.name}
+                    </Link>
+                    <div className="text-red-700 hidden group-hover:block">
+                      <Trash2 size={20} onClick={() => {
+                        handleDeleteRoom(item.id)
+                      }} />
+                    </div>
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
