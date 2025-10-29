@@ -19,24 +19,17 @@ then, install al the dependencies with
 pnpm install
 ```
 
-add your Gemini-API key to the .env file by copying
+copy .env.example file and create a .env file with
 
 ```
 mv apps/boron/.env.example .env
 ```
 
+add the valuese of your .env.
 then run the app by
 
 ```
 pnpm dev
 ```
 
-based on the url,
-your .env values will be like this;
-
-```
-NEXTAUTH_SECRET="your-nextauth-secret"
-// collect from here https://console.cloud.google.com/auth/clients by making a project
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-```
+application should be running on port 3000
