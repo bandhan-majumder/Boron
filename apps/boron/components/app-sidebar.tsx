@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import {
+  Ellipsis,
+  Pencil,
   PlusIcon,
   Trash2,
 } from "lucide-react";
@@ -9,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
+  Input,
   Separator,
   Sidebar,
   SidebarContent,
@@ -28,6 +31,15 @@ import { ChatSkeleton } from "./chat-skeletons";
 import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
 import toast from "react-hot-toast";
 import { NavUser, SessionType } from "./nav-user";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/index"
 
 interface IRoomData {
   id: string;
@@ -42,6 +54,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ session, ...props }: AppSidebarProps) {
   const { data: chatRoomsData, isLoading, isError } = useGetRooms();
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const mutationCreateRoom = useCreateRoom();
   const mutationDeleteRoom = useDeleteRoom();
@@ -107,7 +120,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent className="bg-[#181818] text-white pt-5">
         <div className="flex justify-between mx-1">
-          <p className="text-white flex flex-col justify-center items-center text-lg font-semibold">Previous Projects</p>
+          <p className="text-white flex flex-col justify-center items-center text-lg font-semibold"> Projects</p>
           <button
             onClick={handleCreateNewRoom}
             disabled={mutationCreateRoom.isPending}
@@ -130,18 +143,46 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
             {!chatRoomsData || chatRoomsData.length === 0 && <div className="text-gray-400 text-center">No project found. Create one!</div>}
             {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton asChild>
-                  <div className="flex justify-between">
-                    <Link href={`/c/${item.id}`} className="font-medium hover:bg-[#272725]">
+                <div className="flex justify-between items-center group w-full px-2">
+                  <SidebarMenuButton asChild className="flex-1 min-w-0" onClick={() => setSelectedProject(item.id)}>
+                    <Link href={`/c/${item.id}`} className={`border-none outline-none font-medium truncate ${selectedProject === item.id ? "bg-[#3d3a3a] text-white rounded-md" : ""}`}>
                       {item.name}
                     </Link>
-                    <div className="text-red-700 hidden group-hover:block">
-                      <Trash2 size={20} onClick={() => {
-                        handleDeleteRoom(item.id)
-                      }} />
-                    </div>
+                  </SidebarMenuButton>
+
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="p-1.5 border-none outline-none"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Ellipsis size={15} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        side="bottom"
+                        sideOffset={5}
+                        className="z-50 bg-[#303030] text-white border-none"
+                      >
+                        <DropdownMenuItem className="hover:bg-red-200" onClick={() => {
+                          console.log('Edit:', item.id);
+                        }}>
+                          <Pencil size={16} className="mr-2" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteRoom(item.id)}
+                          className="text-red-400 focus:text-red-400 hover:bg-[#303030]"
+                        >
+                          <Trash2 size={16} className="mr-2 text-red-400" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                </SidebarMenuButton>
+                </div>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
