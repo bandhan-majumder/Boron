@@ -1,8 +1,11 @@
 import prismaClient from "@repo/db/client";
 
-export const getAllChatRooms = async () => {
+export const getAllChatRooms = async ({ userId }: {userId: string}) => {
     try {
         const allChatRooms = await prismaClient.chatRoom.findMany({
+            where: {
+                creatorId: userId
+            },
             orderBy: {
                 updatedAt: 'desc'
             }
@@ -27,11 +30,12 @@ export const getChatRoom = async (roomId: string) => {
     }
 }
 
-export const createChatRoom = async (roomName: string) => {
+export const createChatRoom = async (roomName: string, userId: string) => {
     try {
         const newChatRoom = await prismaClient.chatRoom.create({
             data: {
-                name: roomName
+                name: roomName,
+                creatorId: userId
             }
         })
         return newChatRoom;

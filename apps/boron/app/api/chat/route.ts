@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import { getAllChat, getLastAIChat } from "../../../lib/db/chat";
+import { auth } from "../../../lib/auth/auth";
+import { headers } from "next/headers";
 
 export async function POST(req: Request) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    if (!session || !session.user) {
+        return NextResponse.json("Unauthorized user", { status: 401 });
+    };
+    
     const body = await req.json();
     const { roomId, onlyAI = false } = body;
 

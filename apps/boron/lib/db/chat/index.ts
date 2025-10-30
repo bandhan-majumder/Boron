@@ -34,13 +34,14 @@ export const getLastAIChat = async (roomId: string) => {
     }
 }
 
-export const createChat = async (roomId: string, sender: "user" | "assistant", message: string) => {
+export const createChat = async (roomId: string, sender: "user" | "assistant", message: string, userId?: string) => {
     try {
         const newChat = await prismaClient.chat.create({
             data: {
                 roomId: roomId,
                 sender: sender,
-                chat: message
+                chat: message,
+                userId: userId || null
             }
         })
         return newChat;

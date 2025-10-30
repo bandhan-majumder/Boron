@@ -17,6 +17,8 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+  chatRooms     ChatRoom[]
+  chat          Chat[]
 
   @@unique([email])
   @@map("user")
@@ -35,6 +37,7 @@ model Session {
 
   @@unique([token])
   @@map("session")
+  @@index([userId])
 }
 
 model Account {
@@ -65,14 +68,20 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+  @@unique([identifier, value])
+  @@index([identifier])
 }
 
 model ChatRoom {
   id        String   @id @default(uuid())
-  name      String
+  name      String   @db.VarChar(255)
   chats     Chat[]
+  creatorId String
+  createdBy User @relation(fields: [creatorId], references: [id], onDelete: Cascade) 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("chat_room")
 }
 
 model Chat {
@@ -80,11 +89,15 @@ model Chat {
   chat      String
   sender    Sender
   roomId    String
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   chatRoom  ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("chat")
+  @@index([roomId])
+  @@index([createdAt])
 }
 
 enum Sender {

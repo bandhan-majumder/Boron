@@ -7,15 +7,25 @@ import { google } from '@ai-sdk/google';
 import { findTemplateHelper } from '../buildTemplate';
 import { getAllChat, createChat, getLastAIChat } from '../db/chat';
 import { updateChatRoomName } from '../db/room';
+import { auth } from '../auth/auth';
+import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function generate(input: string, chatRoomId: string) {
   'use server';
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || !session.user) {
+    return NextResponse.json("Unauthorized user", { status: 401 });
+  };
 
   const stream = createStreamableValue();
 
   (async () => {
     try {
-      await createChat(chatRoomId, 'user', input);
+      await createChat(chatRoomId, 'user', input, session.user.id);
 
       const answer = "react";
       const template = findTemplateHelper(answer);
