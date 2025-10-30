@@ -97,40 +97,29 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
       <SidebarHeader className="bg-[#181818] border-none text-white">
         <SidebarMenu>
           <SidebarMenuItem className="bg-none hover:none">
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/new">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Image
-                    crossOrigin="anonymous"
-                    src={"/icon.svg"}
-                    width={80}
-                    height={80}
-                    alt="logo"
-                    style={{ transform: "rotate(35deg)" }}
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium text-xl">Boron</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
+            <Link href="/new">
+              <div className="font-medium text-3xl font-serif text-white">Boron</div>
+            </Link>
+            <div
+              onClick={handleCreateNewRoom}
+              className="flex justify-start gap-3 mt-5 cursor-pointer items-center hover:bg-[#000000] py-2 rounded-md"
+            >
+              <button
+                disabled={mutationCreateRoom.isPending}
+                className="flex justify-center items-center rounded-full p-1 bg-amber-50"
+              >
+                <PlusIcon size={15} className="text-black" />
+              </button>
+              <p className="text-amber-50">New project</p>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-[#181818] text-white pt-5">
-        <div className="flex justify-between mx-1">
-          <p className="text-white flex flex-col justify-center items-center text-lg font-semibold"> Projects</p>
-          <button
-            onClick={handleCreateNewRoom}
-            disabled={mutationCreateRoom.isPending}
-            className="flex justify-center items-center hover:bg-[#FFFFFF] hover:text-black rounded-full cursor-pointer p-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PlusIcon size={20} className="text-white hover:text-black" />
-          </button>
+      <SidebarContent className="bg-[#181818] text-white pt-3">
+        <div className="ml-2 mt-3">
+          <p className="text-gray-200 text-sm font-semibold"> Recents</p>
         </div>
-        <Separator />
-        <SidebarGroup>
+        <SidebarGroup className="pt-0 mt-0">
           <SidebarMenu className="gap-2">
             {isLoading && (
               <div className="text-gray-400 text-sm px-2">
@@ -143,9 +132,9 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
             {!chatRoomsData || chatRoomsData.length === 0 && <div className="text-gray-400 text-center">No project found. Create one!</div>}
             {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
               <SidebarMenuItem key={item.id}>
-                <div className="flex justify-between items-center group w-full px-2">
-                  <SidebarMenuButton asChild className="flex-1 min-w-0" onClick={() => setSelectedProject(item.id)}>
-                    <Link href={`/c/${item.id}`} className={`border-none outline-none font-medium truncate ${selectedProject === item.id ? "bg-[#3d3a3a] text-white rounded-md" : ""}`}>
+                <div className="flex justify-between items-center">
+                  <SidebarMenuButton asChild className="flex min-w-0" onClick={() => setSelectedProject(item.id)}>
+                    <Link href={`/c/${item.id}`} className={`text-gray-200 border-none outline-none font-medium truncate ${selectedProject === item.id ? "bg-[#3d3a3a] rounded-md" : ""}`}>
                       {item.name}
                     </Link>
                   </SidebarMenuButton>
