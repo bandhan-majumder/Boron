@@ -133,8 +133,15 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
             {chatRoomsData && chatRoomsData.map((item: IRoomData) => (
               <SidebarMenuItem key={item.id}>
                 <div className="flex justify-between items-center">
-                  <SidebarMenuButton asChild className="flex min-w-0" onClick={() => setSelectedProject(item.id)}>
-                    <Link href={`/c/${item.id}`} className={`text-gray-200 border-none outline-none font-medium truncate ${selectedProject === item.id ? "bg-[#3d3a3a] rounded-md" : ""}`}>
+                  <SidebarMenuButton
+                    asChild
+                    className="flex min-w-0 hover:bg-[#000000] hover:text-gray-300 focus:bg-transparent active:bg-transparent data-[state=open]:bg-transparent"
+                    onClick={() => setSelectedProject(item.id)}
+                  >
+                    <Link
+                      href={`/c/${item.id}`}
+                      className="text-gray-200 border-none outline-none font-medium truncate"
+                    >
                       {item.name}
                     </Link>
                   </SidebarMenuButton>
@@ -155,7 +162,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                         sideOffset={5}
                         className="z-50 bg-[#303030] text-white border-none"
                       >
-                        <DropdownMenuItem className="hover:bg-red-200" onClick={() => {
+                        <DropdownMenuItem onClick={() => {
                           console.log('Edit:', item.id);
                         }}>
                           <Pencil size={16} className="mr-2" />
@@ -177,7 +184,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="text-black">
+      <SidebarFooter className="text-gray-300 bg-[#181818]">
         <NavUser session={session} />
       </SidebarFooter>
       <SidebarRail />
