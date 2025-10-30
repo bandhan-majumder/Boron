@@ -7,7 +7,6 @@ export const ChatHistorySkeleton = () => (
     <div className="flex gap-4 justify-end">
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-16 w-80 rounded-lg" />
-        <Skeleton className="h-4 w-20 ml-auto" />
       </div>
       <User className="w-5 h-5 text-white" />
     </div>
@@ -17,7 +16,6 @@ export const ChatHistorySkeleton = () => (
       <Bot className="w-5 h-5 text-white" />
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-20 w-96 rounded-lg" />
-        <Skeleton className="h-4 w-24" />
       </div>
     </div>
 
@@ -25,7 +23,6 @@ export const ChatHistorySkeleton = () => (
     <div className="flex gap-4 justify-end">
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-16 w-80 rounded-lg" />
-        <Skeleton className="h-4 w-20 ml-auto" />
       </div>
        <User className="w-5 h-5 text-white" />
     </div>
@@ -35,7 +32,6 @@ export const ChatHistorySkeleton = () => (
      <Bot className="w-5 h-5 text-white" />
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-24 w-[450px] rounded-lg" />
-        <Skeleton className="h-4 w-28" />
       </div>
     </div>
   </div>

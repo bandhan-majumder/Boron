@@ -30,14 +30,16 @@ import {
 
 import { auth } from "../lib/auth/auth";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { signOut } from "../lib/server/auth-actions";
 
 export type SessionType = typeof auth.$Infer.Session;
 
 export function NavUser({ session }: { session: SessionType | null }) {
-  console.log("Session is: ", session)
-  const user = session?.user;
+  if (!session || !session.user) {
+    redirect("/auth")
+  }
+  const user = session.user;
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const { isMobile } = useSidebar();

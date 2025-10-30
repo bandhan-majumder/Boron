@@ -391,9 +391,6 @@ export default function ChatPage({
                             : 'Generated project files'
                         )}
                       </div>
-                      <div className="text-xs opacity-60 mt-2">
-                        {new Date(msg.createdAt).toLocaleTimeString()}
-                      </div>
                     </div>
 
                     {msg.sender === 'user' && (
