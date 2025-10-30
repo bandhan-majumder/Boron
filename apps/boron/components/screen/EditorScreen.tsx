@@ -236,6 +236,7 @@ export default function EditorScreen({
             <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
             <p>Loading preview...</p>
             <p>It generally takes around 1-2 mintues. Please wait!</p>
+            <p>Tip: Open developer console for seeing progress</p>
           </div>
         </div>
       );

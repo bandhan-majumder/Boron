@@ -163,7 +163,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                         sideOffset={5}
                         className="z-50 bg-[#303030] text-white border-none"
                       >
-                        <DropdownMenuItem onClick={() => {
+                        <DropdownMenuItem disabled={true} onClick={() => {
                           console.log('Edit:', item.id);
                         }}>
                           <Pencil size={16} className="mr-2" />
