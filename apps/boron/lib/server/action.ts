@@ -9,7 +9,6 @@ import { getAllChat, createChat, getLastAIChat } from '../db/chat';
 import { updateChatRoomName } from '../db/room';
 import { auth } from '../auth/auth';
 import { headers } from 'next/headers';
-import { NextResponse } from 'next/server';
 
 export async function generate(input: string, chatRoomId: string) {
   'use server';
@@ -18,7 +17,7 @@ export async function generate(input: string, chatRoomId: string) {
   });
 
   if (!session || !session.user) {
-    return NextResponse.json("Unauthorized user", { status: 401 });
+    throw new Error('Unauthorized');
   };
 
   const stream = createStreamableValue();
