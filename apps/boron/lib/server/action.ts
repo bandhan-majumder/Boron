@@ -25,7 +25,7 @@ export async function generate(input: string, chatRoomId: string) {
       if (!allPrevAIMessages) {
         generateObject({
           model: google("gemini-2.5-flash"),
-          system: "You are a professional summarization agent. You can easily summarlize long long texts in 20 characters.",
+          system: "You are a professional summarization agent. You can easily summarlize long long texts in 20 characters. Given the user input, generate a short and concise title for the conversation that captures the main topic discussed. The title should be around 22 characters long and should be relevant to the content of the conversation.",
           prompt: input,
           schema: z.object({
             summarized: z.string().max(25, "Summarized text with around 22 characters.")
