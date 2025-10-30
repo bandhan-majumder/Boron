@@ -7,12 +7,9 @@ import {
   PlusIcon,
   Trash2,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 import {
-  Input,
-  Separator,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -25,7 +22,7 @@ import {
 } from "./index";
 import { useCreateRoom } from "../hooks/mutation/room/useCreateRoom";
 import { useGetRooms } from "../hooks/mutation/room/useGetRooms";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChatSkeleton } from "./chat-skeletons";
 import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
@@ -36,8 +33,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/index"
 
@@ -53,6 +48,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ session, ...props }: AppSidebarProps) {
+  const pathname = usePathname();
   const { data: chatRoomsData, isLoading, isError } = useGetRooms();
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -65,6 +61,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
       { roomName: "new project" },
       {
         onSuccess: async (data) => {
+          sessionStorage.setItem("isNew", "true"); // new chat does not have history
           router.push(`/c/${data.id}`);
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
         },
@@ -75,12 +72,16 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
     );
   };
 
-  const handleDeleteRoom = async (roomId: string) => {
+  const handleDeleteRoom = async (roomId: string, currentPath: string) => {
     mutationDeleteRoom.mutate(
       { roomId: roomId },
       {
         onSuccess: async (data) => {
           queryClient.invalidateQueries({ queryKey: ['getRoom'] });
+          // if deleting the current chatpage, it should route me to /new
+          if (currentPath.includes(roomId)) {
+            router.push("/new")
+          }
           toast.success("Project deleted successfully!")
         },
         onError: (error) => {
@@ -169,7 +170,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleDeleteRoom(item.id)}
+                          onClick={() => handleDeleteRoom(item.id, pathname)}
                           className="text-red-400 focus:text-red-400 hover:bg-[#303030]"
                         >
                           <Trash2 size={16} className="mr-2 text-red-400" />

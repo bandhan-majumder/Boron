@@ -26,8 +26,8 @@ import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Skeleton } from "../ui/skeleton";
 import { ChatHistorySkeleton, InitializingSkeleton, GeneratingFilesSkeleton, CreatingRoomSkeleton } from "../skeletons/ChatPageSkeletons";
+import axios from "axios";
 
 export const maxDuration = 30;
 
@@ -64,6 +64,14 @@ export default function ChatPage({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const stored = sessionStorage.getItem("isNew");
+    if (stored === "true") {
+      isNew=true;
+      sessionStorage.removeItem("isNew");
+    } 
+  }, []);
+
   const createRoomHandler = async (roomName: string) => {
     return new Promise<{ id: string }>((resolve, reject) => {
       mutation.mutate(
@@ -96,15 +104,10 @@ export default function ChatPage({
 
     setIsLoadingHistory(true);
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId: chatRoomId }),
-      });
+      const response = await axios.post('/api/chat', { roomId: chatRoomId });
+      const data = response.data;
 
-      const data = await response.json();
       if (data.chats) {
-        // Process each chat and extract steps for assistant messages
         const processedChats = data.chats.map((chat: any) => {
           if (chat.sender === 'assistant') {
             try {
