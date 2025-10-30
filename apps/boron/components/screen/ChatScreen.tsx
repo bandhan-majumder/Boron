@@ -313,7 +313,6 @@ export default function ChatPage({
         setPendingMessage(null);
       }
     } else {
-      // Normal flow - process message in existing room
       await processMessage(message, chatRoomId ?? "");
     }
   };
@@ -382,7 +381,7 @@ export default function ChatPage({
                     )}
 
                     <div
-                      className={`max-w-[70%] rounded-lg p-4 ${msg.sender === 'user'
+                      className={`max-w-[50%] rounded-lg p-4 ${msg.sender === 'user'
                         ? 'bg-[#303030] text-white'
                         : 'text-gray-100'
                         }`}

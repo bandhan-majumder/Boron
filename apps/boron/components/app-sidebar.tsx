@@ -136,7 +136,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                 <div className="flex justify-between items-center">
                   <SidebarMenuButton
                     asChild
-                    className="flex min-w-0 hover:bg-[#000000] hover:text-gray-300 focus:bg-transparent active:bg-transparent data-[state=open]:bg-transparent"
+                    className={`flex min-w-0 hover:bg-[#000000] hover:text-gray-300 focus:bg-transparent active:bg-transparent data-[state=open]:bg-transparent ${selectedProject === item.id && "bg-[#000000]"}`}
                     onClick={() => setSelectedProject(item.id)}
                   >
                     <Link
