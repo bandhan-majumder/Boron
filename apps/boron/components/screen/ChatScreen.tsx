@@ -67,9 +67,9 @@ export default function ChatPage({
   useEffect(() => {
     const stored = sessionStorage.getItem("isNew");
     if (stored === "true") {
-      isNew=true;
+      isNew = true;
       sessionStorage.removeItem("isNew");
-    } 
+    }
   }, []);
 
   const createRoomHandler = async (roomName: string) => {
@@ -87,14 +87,12 @@ export default function ChatPage({
     });
   };
 
-  // Load chat history when component mounts or chatRoomId changes
   useEffect(() => {
     if (!isNew && chatRoomId) {
       loadChatHistory();
     }
   }, [chatRoomId, isNew]);
 
-  // Auto-scroll to bottom when chat history changes
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, streamingSteps]);
@@ -133,7 +131,6 @@ export default function ChatPage({
     }
   };
 
-  // Reset state when chatRoomId changes (navigating between chats)
   useEffect(() => {
     setStreamingSteps([]);
     setProcessingError(null);
@@ -145,7 +142,6 @@ export default function ChatPage({
     setOpenEditorId(null);
   }, [chatRoomId]);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -155,7 +151,6 @@ export default function ChatPage({
     };
   }, []);
 
-  // Convert streaming data to steps in real-time
   const convertToSteps = useCallback((partialObject: any): StepAfterConvert[] => {
     try {
       queryClient.invalidateQueries({ queryKey: ['getRoom'] });
@@ -196,7 +191,6 @@ export default function ChatPage({
   const processMessage = async (message: PromptInputMessage, roomId: string) => {
     setStatus('submitted');
 
-    // Add user message to UI immediately (optimistic update)
     const userMessageId = Date.now();
     const userMessage: ChatMessage = {
       id: userMessageId,
@@ -206,7 +200,6 @@ export default function ChatPage({
     };
     setChatHistory(prev => [...prev, userMessage]);
 
-    // Create placeholder for assistant message
     const assistantMessageId = userMessageId + 1;
     const assistantPlaceholder: ChatMessage = {
       id: assistantMessageId,
@@ -223,7 +216,7 @@ export default function ChatPage({
       const { object } = await generate(message.text || '', roomId);
       let hasReceivedData = false;
       let assistantResponse = '';
-      let finalSteps: StepAfterConvert[] = []; // Store final steps here
+      let finalSteps: StepAfterConvert[] = [];
 
       for await (const partialObject of readStreamableValue(object)) {
         if (partialObject) {
@@ -235,12 +228,10 @@ export default function ChatPage({
           assistantResponse = JSON.stringify(partialObject);
           const steps = convertToSteps(partialObject);
 
-
           if (steps.length > 0) {
-            finalSteps = steps; // Keep updating finalSteps
+            finalSteps = steps;
             setStreamingSteps(steps);
 
-            // Update the assistant message in chat history with latest steps
             setChatHistory(prev => prev.map(msg =>
               msg.id === assistantMessageId
                 ? { ...msg, chat: assistantResponse, steps }
@@ -250,7 +241,6 @@ export default function ChatPage({
         }
       }
 
-      // Final update with complete response using finalSteps
       setChatHistory(prev => prev.map(msg =>
         msg.id === assistantMessageId
           ? { ...msg, chat: assistantResponse, steps: finalSteps }
@@ -260,7 +250,7 @@ export default function ChatPage({
       setText('');
       setStatus('ready');
       setCurrentStreamingMessageId(null);
-      setStreamingSteps([]); // Clear streaming steps only after final update
+      setStreamingSteps([]);
 
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -272,7 +262,6 @@ export default function ChatPage({
       setStatus('error');
       setProcessingError(error instanceof Error ? error.message : 'Generation failed');
 
-      // Remove both optimistic messages on error
       setChatHistory(prev => prev.filter(msg =>
         msg.id !== userMessageId && msg.id !== assistantMessageId
       ));
@@ -294,10 +283,8 @@ export default function ChatPage({
       return;
     }
 
-    // Reset error states for new submission
     setProcessingError(null);
 
-    // If this is a new chat, create room first
     if (isNew) {
       setPendingMessage(message);
       setStatus('submitted');
@@ -317,7 +304,6 @@ export default function ChatPage({
     }
   };
 
-  // Process pending message after navigation
   useEffect(() => {
     if (!isNew && chatRoomId) {
       const pending = sessionStorage.getItem('pendingMessage');
@@ -337,167 +323,171 @@ export default function ChatPage({
   const isLoading = status === 'submitted' || status === 'streaming';
   const isInputDisabled = isLoading;
 
-  // Get the currently opened editor's steps
   const openEditorSteps = openEditorId
     ? chatHistory.find(msg => msg.id === openEditorId)?.steps
     : null;
 
   return (
-    <div className="flex flex-col w-full h-full relative">
-      {/* Main Chat Screen - Centered */}
-      <div className="flex-1 overflow-y-auto p-6 pb-32 flex justify-center">
-        <div className="w-full max-w-4xl">
-          {/* Loading History Skeleton */}
-          {isLoadingHistory && <ChatHistorySkeleton />}
+    <div className="h-full flex flex-col">
+      {/* Scrollable chat content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="flex justify-center px-6 py-6 pb-32">
+          <div className="w-full max-w-4xl">
+            {isLoadingHistory && <ChatHistorySkeleton />}
 
-          {!isLoadingHistory && chatHistory.length === 0 && <div>
-            <div className="flex justify-center items-center py-4">
-              <Image
-                crossOrigin="anonymous"
-                src={"/icon.svg"}
-                width={60}
-                height={60}
-                alt="logo"
-                style={{ transform: "rotate(35deg)" }}
-                className="rounded-full text-center"
-              />
-            </div>
-            <div className="text-white text-center text-4xl font-serif">What are you building today?</div>
-          </div>}
+            {!isLoadingHistory && chatHistory.length === 0 && (
+              <div>
+                <div className="flex justify-center items-center py-4">
+                  <Image
+                    crossOrigin="anonymous"
+                    src={"/icon.svg"}
+                    width={60}
+                    height={60}
+                    alt="logo"
+                    style={{ transform: "rotate(35deg)" }}
+                    className="rounded-full text-center"
+                  />
+                </div>
+                <div className="text-white text-center text-4xl font-serif">What are you building today?</div>
+              </div>
+            )}
 
-          {/* Chat History */}
-          {!isLoadingHistory && chatHistory.length > 0 && (
-            <div className="space-y-6 mb-6">
-              {chatHistory.map((msg) => (
-                <div key={msg.id} className="space-y-3">
-                  <div
-                    className={`flex gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'
-                      }`}
-                  >
-                    {msg.sender === 'assistant' && (
-                      <div className="flex-shrink-0">
-                        <Bot className="w-5 h-5 text-white" />
-                      </div>
-                    )}
-
+            {!isLoadingHistory && chatHistory.length > 0 && (
+              <div className="space-y-6 mb-6">
+                {chatHistory.map((msg) => (
+                  <div key={msg.id} className="space-y-3">
                     <div
-                      className={`max-w-[50%] rounded-lg p-4 ${msg.sender === 'user'
-                        ? 'bg-[#303030] text-white'
-                        : 'text-gray-100'
+                      className={`flex gap-4 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'
                         }`}
                     >
-                      <div className="text-sm whitespace-pre-wrap break-words">
-                        {msg.sender === 'user' ? msg.chat : (
-                          msg.id === currentStreamingMessageId && (status === 'streaming' || status === 'submitted')
-                            ? 'Generating project files...'
-                            : 'Generated project files'
-                        )}
+                      {msg.sender === 'assistant' && (
+                        <div className="flex-shrink-0">
+                          <Bot className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+
+                      <div
+                        className={`max-w-[50%] rounded-lg p-4 ${msg.sender === 'user'
+                          ? 'bg-[#303030] text-white'
+                          : 'text-gray-100'
+                          }`}
+                      >
+                        <div className="text-sm whitespace-pre-wrap break-words">
+                          {msg.sender === 'user' ? msg.chat : (
+                            msg.id === currentStreamingMessageId && (status === 'streaming' || status === 'submitted')
+                              ? 'Generating project files...'
+                              : 'Generated project files'
+                          )}
+                        </div>
                       </div>
+
+                      {msg.sender === 'user' && (
+                        <div className="flex-shrink-0">
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                     </div>
 
-                    {msg.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <User className="w-5 h-5 text-white" />
+                    {msg.sender === 'assistant' && msg.steps && msg.steps.length > 0 && (
+                      <div className="flex justify-start ml-12">
+                        <button
+                          onClick={() => setOpenEditorId(msg.id)}
+                          className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 hover:bg-[#3B3B39] transition-colors"
+                        >
+                          {msg.id === currentStreamingMessageId && status === 'streaming' ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="font-medium text-sm">Preparing editor...</span>
+                              <span className="bg-white/20 px-2 py-1 rounded text-xs">
+                                {streamingSteps.length} files
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <Maximize2 className="w-4 h-4" />
+                              <span className="font-medium text-sm">View Files in Editor</span>
+                              <span className="bg-white/20 px-2 py-1 rounded text-xs">
+                                {msg.steps.length} files
+                              </span>
+                            </>
+                          )}
+                          <div className="absolute inset-0 rounded-lg border-2 border-white/20 group-hover:border-white/40 transition-all"></div>
+                        </button>
                       </div>
                     )}
                   </div>
-
-                  {/* Show editor button for each assistant message with files */}
-                  {msg.sender === 'assistant' && msg.steps && msg.steps.length > 0 && (
-                    <div className="flex justify-start ml-12">
-                      <button
-                        onClick={() => setOpenEditorId(msg.id)}
-                        className="bg-[#2B2B29] border border-[#2B2B29] group relative overflow-hidden text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 hover:bg-[#3B3B39] transition-colors"
-                      >
-                        {msg.id === currentStreamingMessageId && status === 'streaming' ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span className="font-medium text-sm">Preparing editor...</span>
-                            <span className="bg-white/20 px-2 py-1 rounded text-xs">
-                              {streamingSteps.length} files
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Maximize2 className="w-4 h-4" />
-                            <span className="font-medium text-sm">View Files in Editor</span>
-                            <span className="bg-white/20 px-2 py-1 rounded text-xs">
-                              {msg.steps.length} files
-                            </span>
-                          </>
-                        )}
-                        <div className="absolute inset-0 rounded-lg border-2 border-white/20 group-hover:border-white/40 transition-all"></div>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-
-          {status === 'submitted' && chatHistory.length === 0 && isNew && (
-            <CreatingRoomSkeleton />
-          )}
-
-          {status === 'submitted' && chatHistory.length === 0 && !isNew && (
-            <InitializingSkeleton />
-          )}
-
-          {status === 'streaming' && streamingSteps.length === 0 && (
-            <GeneratingFilesSkeleton />
-          )}
-
-          {processingError && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-2">Error</h2>
-                <p className="mb-4">{processingError}</p>
-                <button
-                  onClick={handleDismissError}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                >
-                  Try Again
-                </button>
+                ))}
+                <div ref={chatEndRef} />
               </div>
-            </div>
-          )}
+            )}
+
+            {status === 'submitted' && chatHistory.length === 0 && isNew && (
+              <CreatingRoomSkeleton />
+            )}
+
+            {status === 'submitted' && chatHistory.length === 0 && !isNew && (
+              <InitializingSkeleton />
+            )}
+
+            {status === 'streaming' && streamingSteps.length === 0 && (
+              <GeneratingFilesSkeleton />
+            )}
+
+            {processingError && (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold mb-2">Error</h2>
+                  <p className="mb-4">{processingError}</p>
+                  <button
+                    onClick={handleDismissError}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Input Section - Fixed at bottom and centered */}
-      <div className="flex flex-col items-center justify-center py-2 px-6">
-        <div className="w-full max-w-2xl bg-[#272725] rounded-lg shadow-lg">
-          <PromptInput className='text-white' globalDrop multiple onSubmit={handleSubmit}>
-            <PromptInputBody>
-              <PromptInputAttachments>
-                {(attachment) => <PromptInputAttachment data={attachment} />}
-              </PromptInputAttachments>
-              <PromptInputTextarea
-                onChange={(e) => setText(e.target.value)}
-                ref={textareaRef}
-                value={text}
-                disabled={isInputDisabled}
-              />
-            </PromptInputBody>
-            <PromptInputToolbar>
-              <PromptInputTools>
-                <PromptInputActionMenu>
-                  <PromptInputActionMenuTrigger />
-                  <PromptInputActionMenuContent>
-                    <PromptInputActionAddAttachments />
-                  </PromptInputActionMenuContent>
-                </PromptInputActionMenu>
-                <PromptInputSpeechButton
-                  onTranscriptionChange={setText}
-                  textareaRef={textareaRef}
+      {/* Fixed input at bottom - stays within the flex container */}
+      <div className="flex-shrink-0 border-none bg-transparent">
+        <div className="max-w-2xl mx-auto px-6 py-4">
+          <div className="bg-[#272725]/60 backdrop-blur-md rounded-lg shadow-none">
+            <PromptInput className="bg-transparent text-white" globalDrop multiple onSubmit={handleSubmit}>
+              <PromptInputBody>
+                <PromptInputAttachments>
+                  {(attachment) => <PromptInputAttachment data={attachment} />}
+                </PromptInputAttachments>
+                <PromptInputTextarea
+                  className="bg-transparent"
+                  onChange={(e) => setText(e.target.value)}
+                  ref={textareaRef}
+                  value={text}
+                  disabled={isInputDisabled}
                 />
-              </PromptInputTools>
-              <PromptInputSubmit status={status} />
-            </PromptInputToolbar>
-          </PromptInput>
+              </PromptInputBody>
+              <PromptInputToolbar>
+                <PromptInputTools>
+                  <PromptInputActionMenu>
+                    <PromptInputActionMenuTrigger />
+                    <PromptInputActionMenuContent>
+                      <PromptInputActionAddAttachments />
+                    </PromptInputActionMenuContent>
+                  </PromptInputActionMenu>
+                  <PromptInputSpeechButton
+                    onTranscriptionChange={setText}
+                    textareaRef={textareaRef}
+                  />
+                </PromptInputTools>
+                <PromptInputSubmit status={status} />
+              </PromptInputToolbar>
+            </PromptInput>
+          </div>
         </div>
       </div>
+
 
       {/* Full Screen Editor Modal */}
       {openEditorId !== null && openEditorSteps && openEditorSteps.length > 0 && (
@@ -523,7 +513,6 @@ export default function ChatPage({
               </button>
             </div>
 
-            {/* Editor Content */}
             <div className="flex-1 overflow-hidden">
               <EditorScreen
                 initialSteps={openEditorId === currentStreamingMessageId ? streamingSteps : openEditorSteps}
