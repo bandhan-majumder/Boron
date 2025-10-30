@@ -151,8 +151,7 @@ export default function EditorScreen({
             }}
             className={`
               flex items-center gap-2 px-3 py-2 cursor-pointer transition-all
-              ${isSelected ? 'bg-blue-600/20 text-blue-400' : 'hover:bg-gray-700/50 text-gray-300'}
-              ${isAnimating ? 'animate-pulse bg-green-500/20' : ''}
+              ${isSelected ? 'bg-gray-700/50 text-gray-300' : 'hover:bg-gray-700/50 text-gray-300'}
             `}
             style={{ paddingLeft: `${level * 16 + 12}px` }}
           >
