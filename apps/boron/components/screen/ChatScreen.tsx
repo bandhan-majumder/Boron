@@ -21,7 +21,7 @@ import {
   PromptInputTools,
 } from '../ai-elements/prompt-input';
 import { readStreamableValue } from '@ai-sdk/rsc';
-import { FileText, Loader2, X, Maximize2, Code, User, Bot } from 'lucide-react';
+import { FileText, Loader2, Maximize2, User, Bot, Delete } from 'lucide-react';
 import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
@@ -232,7 +232,7 @@ export default function ChatPage({
           assistantResponse = JSON.stringify(partialObject);
           const steps = convertToSteps(partialObject);
 
-          
+
           if (steps.length > 0) {
             finalSteps = steps; // Keep updating finalSteps
             setStreamingSteps(steps);
@@ -517,8 +517,7 @@ export default function ChatPage({
                 onClick={() => setOpenEditorId(null)}
                 className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg transition-colors flex items-center gap-2"
               >
-                <X className="w-4 h-4" />
-                <span className="text-sm font-medium">Close Editor</span>
+                <Delete />
               </button>
             </div>
 

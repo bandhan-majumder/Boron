@@ -6,8 +6,9 @@ import { FileItem, Step, StepAfterConvert } from "../../types/index";
 import { filterStepsToFiles, modifySteps } from "../../lib/step";
 import { useWebContainer } from "../../hooks/useWebcontainer";
 import { PreviewFrame } from "../PreviewFrame";
-import { Loader2, FileText, FolderOpen, ChevronRight, CheckCircle2, Eye, Code } from "lucide-react";
+import { Loader2, FileText, FolderOpen, ChevronRight, CheckCircle2, Eye, Code, Download } from "lucide-react";
 import { CodeEditor } from "../CodeEditor";
+import toast from "react-hot-toast";
 
 interface EditorScreenProps {
   initialSteps: StepAfterConvert[];
@@ -182,6 +183,51 @@ export default function EditorScreen({
 
   const fileTree = buildFileTree();
 
+  // Download all files as a proper zip folder
+  const downloadAllFiles = async () => {
+    if (files.length === 0) {
+      toast.error("No files to download");
+      return;
+    }
+
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      
+      const processFilesForZip = (fileItems: FileItem[], folder: any) => {
+        fileItems.forEach(file => {
+          if (file.type === "file") {
+            folder.file(file.name, file.content || "");
+          } else if (file.type === "folder" && file.children) {
+            const subFolder = folder.folder(file.name);
+            processFilesForZip(file.children, subFolder);
+          }
+        });
+      };
+
+      // Add all files to zip maintaining folder structure
+      processFilesForZip(files, zip);
+
+      // Generate zip file
+      const blob = await zip.generateAsync({ type: "blob" });
+      
+      // Download the zip
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `project-${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("Project downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download project. Make sure JSZip is installed.");
+    }
+  };
+
   // Memoize preview frame
   const previewFrame = useMemo(() => {
     if (!webcontainer) {
@@ -249,6 +295,14 @@ export default function EditorScreen({
             </span>
           </div>
 
+          <button
+            onClick={downloadAllFiles}
+            className="flex items-center gap-2 px-3 py-1.5 rounded border-none outline-none cursor-pointer text-sm text-white"
+          >
+            <Download className="w-4 h-4" />
+            Download Project
+          </button>
+
           {/* View Toggle */}
           <div className="flex items-center gap-2 bg-[#1e1e1e] rounded-lg p-1">
             <button
@@ -256,7 +310,7 @@ export default function EditorScreen({
               className={`
                 flex items-center gap-2 px-3 py-1.5 rounded transition-colors text-sm
                 ${view === 'code'
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-white text-black'
                   : 'text-gray-400 hover:text-gray-200'
                 }
               `}
@@ -269,7 +323,7 @@ export default function EditorScreen({
               className={`
                 flex items-center gap-2 px-3 py-1.5 rounded transition-colors text-sm
                 ${view === 'preview'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-white text-black'
                   : 'text-gray-400 hover:text-gray-200'
                 }
               `}
