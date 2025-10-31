@@ -67,7 +67,6 @@ export const GeneratingFilesSkeleton = () => (
         <Skeleton className="h-2 w-2 rounded-full animate-bounce [animation-delay:0.4s]" />
       </div>
     </div>
-    {/* File generation progress skeleton */}
     <div className="w-full max-w-md space-y-2">
       <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
         <Skeleton className="w-6 h-6 rounded" />
@@ -102,7 +101,6 @@ export const CreatingRoomSkeleton = () => (
       <Skeleton className="h-6 w-56 mx-auto" />
       <Skeleton className="h-4 w-40 mx-auto" />
     </div>
-    {/* Progress bar */}
     <div className="w-64 space-y-2">
       <Skeleton className="h-2 w-full rounded-full" />
       <div className="flex justify-between">

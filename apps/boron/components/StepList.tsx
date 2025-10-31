@@ -102,7 +102,6 @@ export default function StepsList({
                 )}
                 onClick={() => onSelectStep(step.id)}
               >
-                {/* Background shimmer effect for current step */}
                 {currentStep === step.id && (
                   <div className="absolute inset-0" />
                 )}
@@ -131,8 +130,6 @@ export default function StepsList({
                     <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
-
-                {/* Step number indicator */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm shadow-amber-400/50" />
               </Button>
             ))}

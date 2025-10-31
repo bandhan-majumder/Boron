@@ -250,7 +250,6 @@ export default function EditorScreen({
 
   return (
     <div  className="flex h-full bg-[#1a1a1a] text-white">
-      {/* Sidebar - File Tree */}
       <div className="w-80 bg-[#1e1e1e] border-r border-gray-700 flex flex-col">
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
           <h2 className="font-semibold flex items-center gap-2">
@@ -285,9 +284,7 @@ export default function EditorScreen({
         </div>
       </div>
 
-      {/* Main Editor Area */}
       <div className="flex-1 flex flex-col">
-        {/* Top Toolbar */}
         <div className="bg-[#2d2d2d] px-4 py-3 border-b border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-blue-500" />
@@ -306,7 +303,6 @@ export default function EditorScreen({
             Download Project
           </button>
 
-          {/* View Toggle */}
           <div className="flex items-center gap-2 bg-[#1e1e1e] rounded-lg p-1">
             <button
               onClick={() => setView('code')}
@@ -337,7 +333,6 @@ export default function EditorScreen({
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="flex-1 overflow-hidden">
           {view === 'code' ? (
             selectedFile ? (
