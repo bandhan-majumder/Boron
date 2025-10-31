@@ -1,6 +1,6 @@
 "use server";
 
-import { generateObject, streamObject } from "ai";
+import { generateObject, generateText, streamObject } from "ai";
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { z } from "zod";
 import { google } from "@ai-sdk/google";
@@ -24,30 +24,37 @@ export async function generate(input: string, chatRoomId: string) {
 
   (async () => {
     try {
-      await createChat(chatRoomId, "user", input, session.user.id);
+      await createChat(chatRoomId, "user", input, session.user.id, false);
 
-      // find if it is project related query
-      // generateObject({
-      //   model: google("gemini-2.5-flash"),
-      //   system: "You are a professional agent that creates React applications and take users feedback to improve existing code or add change. You can easily detect irrelevent informaition from the user input. Given the user input, determine if the input is related to React project development or not. If it is related to React project development, respond with 'yes', otherwise respond with 'no'.",
-      //   prompt: input,
-      //   schema: z.object({
-      //     decision: z.boolean().describe("Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.")
-      //   }),
-      // }).then(({ object: summarizedText }) => {
-      //   const decision = summarizedText.decision;
-      //   if (!decision) {
-      //     updateChatRoomName(chatRoomId, "General Discussion");
-      //   }
-      // }).catch(error => {
-      //   console.error("Failed to proceed converstation:", error);
-      // });
+      const { object: decisionObject } = await generateObject({
+        model: google("gemini-2.5-flash"),
+        system: "You are a professional agent that creates React applications and takes user feedback to improve existing code or add changes. You can easily detect irrelevant information from queries. Given the user input, determine if the input is related to React project development or not. A requets containing replicating design or functionalities of a bad reputed or adult site or any illegal site is considered as non-project related.",
+        prompt: input,
+        schema: z.object({
+          decision: z.boolean().describe("Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.")
+        }),
+      });
+
+      const isProjectRelated = decisionObject.decision;
+
+      if (!isProjectRelated) {
+        const response = await generateText({
+          model: google("gemini-2.5-flash"),
+          system: "You are Boron, a professional assistant. You can easily handle user queries. Given the user input, provide a concise and relevant response to the user's query. If the query is not clear, ask for more information. Do not provide any response to any sensitive, adult or harmful queries and respond with a general message that you can not assist with the request and you can help users to create useful non-sensitive React websites only. If the user asks to replicate a design or functionalities of a bad reputed or adult site or any illegal site, please do not provide any code or do not ask any further related questions. Simply say you can not assist with that request.",
+          prompt: input,
+        });
+
+        await createChat(chatRoomId, "assistant", response.text, undefined, false);
+        
+        stream.update({ text: response.text, isProjectCode: false });
+        stream.done();
+        return;
+      }
 
       const template = findTemplateHelper("react");
-      const allPrevChats = await getAllChat(chatRoomId);
-      const allPrevAIMessages = await getLastAIChat(chatRoomId);
+      const lastAIresponse = await getLastAIChat(chatRoomId);
 
-      if (!allPrevAIMessages) {
+      if (!lastAIresponse) {
         generateObject({
           model: google("gemini-2.5-flash"),
           system:
@@ -67,14 +74,6 @@ export async function generate(input: string, chatRoomId: string) {
           });
       }
 
-      const conversationHistory = allPrevChats
-        .slice(0, -1) // Remove the last message (current user input)
-        .map(
-          (chat) =>
-            `${chat.sender === "user" ? "User" : "Assistant"}: ${chat.chat}`,
-        )
-        .join("\n\n");
-
       const messages = template.prompts
         ? template.prompts.reduce(
             (acc: string, promptText: string) => acc + promptText,
@@ -82,8 +81,8 @@ export async function generate(input: string, chatRoomId: string) {
           )
         : "";
 
-      const systemWithHistory = conversationHistory
-        ? `${messages}\n\n=== Previous Conversation ===\n${conversationHistory}\n\n=== Current Request ===`
+      const systemWithHistory = lastAIresponse
+        ? `${messages}\n\n=== Previous Conversation ===\n${lastAIresponse.chat}\n\n=== Current Request ===`
         : messages;
 
       let fullResponse = "";
@@ -100,7 +99,7 @@ export async function generate(input: string, chatRoomId: string) {
         fullResponse = JSON.stringify(partialObject);
       }
 
-      await createChat(chatRoomId, "assistant", fullResponse);
+      await createChat(chatRoomId, "assistant", fullResponse, undefined, true);
 
       stream.done();
     } catch (error) {

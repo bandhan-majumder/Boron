@@ -38,6 +38,7 @@ export const createChat = async (
   sender: "user" | "assistant",
   message: string,
   userId?: string,
+  isProjectCode: boolean = false,
 ) => {
   try {
     const newChat = await prismaClient.chat.create({
@@ -46,6 +47,7 @@ export const createChat = async (
         sender: sender,
         chat: message,
         userId: userId || null,
+        isProjectCode: isProjectCode,
       },
     });
     return newChat;

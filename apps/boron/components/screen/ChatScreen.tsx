@@ -37,6 +37,7 @@ type ChatMessage = {
   chat: string;
   sender: "user" | "assistant";
   createdAt: Date;
+  isProjectCode?: boolean;
   steps?: StepAfterConvert[];
 };
 
@@ -125,19 +126,20 @@ export default function ChatPage({
 
       if (data.chats) {
         const processedChats = data.chats.map((chat: any) => {
-          if (chat.sender === "assistant") {
+          if (chat.sender === "assistant" && chat.isProjectCode) {
             try {
               const parsed = JSON.parse(chat.chat);
               const steps = convertToSteps(parsed);
               return {
                 ...chat,
+                isProjectCode: true,
                 steps: steps.length > 0 ? steps : undefined,
               };
             } catch {
-              return chat;
+              return { ...chat, isProjectCode: true };
             }
           }
-          return chat;
+          return { ...chat, isProjectCode: chat.isProjectCode || false };
         });
 
         setChatHistory(processedChats);
@@ -228,6 +230,7 @@ export default function ChatPage({
       chat: message.text || "",
       sender: "user",
       createdAt: new Date(),
+      isProjectCode: false,
     };
     setChatHistory((prev) => [...prev, userMessage]);
 
@@ -237,6 +240,7 @@ export default function ChatPage({
       chat: "",
       sender: "assistant",
       createdAt: new Date(),
+      isProjectCode: undefined,
       steps: [],
     };
 
@@ -248,6 +252,7 @@ export default function ChatPage({
       let hasReceivedData = false;
       let assistantResponse = "";
       let finalSteps: StepAfterConvert[] = [];
+      let isProjectCode = false;
 
       for await (const partialObject of readStreamableValue(object)) {
         if (partialObject) {
@@ -256,20 +261,34 @@ export default function ChatPage({
             hasReceivedData = true;
           }
 
-          assistantResponse = JSON.stringify(partialObject);
-          const steps = convertToSteps(partialObject);
-
-          if (steps.length > 0) {
-            finalSteps = steps;
-            setStreamingSteps(steps);
+          if (partialObject.text && !partialObject.boronArtifact) {
+            assistantResponse = partialObject.text;
+            isProjectCode = false;
 
             setChatHistory((prev) =>
               prev.map((msg) =>
                 msg.id === assistantMessageId
-                  ? { ...msg, chat: assistantResponse, steps }
+                  ? { ...msg, chat: assistantResponse, isProjectCode: false }
                   : msg,
               ),
             );
+          } else {
+            assistantResponse = JSON.stringify(partialObject);
+            isProjectCode = true;
+            const steps = convertToSteps(partialObject);
+
+            if (steps.length > 0) {
+              finalSteps = steps;
+              setStreamingSteps(steps);
+
+              setChatHistory((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, chat: assistantResponse, isProjectCode: true, steps }
+                    : msg,
+                ),
+              );
+            }
           }
         }
       }
@@ -277,7 +296,12 @@ export default function ChatPage({
       setChatHistory((prev) =>
         prev.map((msg) =>
           msg.id === assistantMessageId
-            ? { ...msg, chat: assistantResponse, steps: finalSteps }
+            ? {
+                ...msg,
+                chat: assistantResponse,
+                isProjectCode,
+                steps: isProjectCode ? finalSteps : undefined,
+              }
             : msg,
         ),
       );
@@ -430,8 +454,10 @@ export default function ChatPage({
                                   Thinking...
                                 </span>
                               </div>
-                            ) : (
+                            ) : msg.isProjectCode ? (
                               "Generated project files"
+                            ) : (
+                              msg.chat
                             )}
                           </div>
                         </div>
@@ -444,6 +470,7 @@ export default function ChatPage({
                       </div>
 
                       {msg.sender === "assistant" &&
+                        msg.isProjectCode &&
                         msg.steps &&
                         msg.steps.length > 0 && (
                           <div className="flex justify-start ml-12">
@@ -505,7 +532,7 @@ export default function ChatPage({
       </div>
 
       <div className="flex-shrink-0 border-none bg-transparent">
-        <div className="max-w-2xl mx-auto px-6 py-4">
+        <div className="max-w-3xl mx-auto px-6 py-4">
           <div className="rounded-lg shadow-none">
             <PromptInput
               className="bg-[#30302E] text-white rounded-xl"

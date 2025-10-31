@@ -89,6 +89,7 @@ model Chat {
   chat      String
   sender    Sender
   roomId    String
+  isProjectCode Boolean @default(false)
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   chatRoom  ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
