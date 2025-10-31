@@ -1,13 +1,14 @@
-name: Build on PR
+name: Test and Build on PR
 on:
-  workflow_run:
-    workflows: ["Test on PR"]
-    types:
-      - completed
+  push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +26,36 @@ jobs:
       
       - name: Copy .env
         run: mv apps/boron/.env.example apps/boron/.env
+        
+      - name: Install Dependencies
+        run: pnpm install
+        
+      - name: Generate prisma client
+        run: pnpm client
+
+      - name: Run Tests
+        run: pnpm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test 
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Copy .env
+        run: mv apps/boron/.env.example apps/boron/.env
+        
       - name: Install Dependencies
         run: pnpm install
         
