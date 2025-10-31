@@ -458,7 +458,7 @@ export default function ChatPage({
       <div className="flex-shrink-0 border-none bg-transparent">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <div className="rounded-lg shadow-none">
-            <PromptInput className="bg-[#30302E] text-white" globalDrop multiple onSubmit={handleSubmit}>
+            <PromptInput className="bg-[#30302E] text-white rounded-xl" globalDrop multiple onSubmit={handleSubmit}>
               <PromptInputBody>
                 <PromptInputAttachments>
                   {(attachment) => <PromptInputAttachment data={attachment} />}

@@ -44,10 +44,10 @@ export default async function ChatLayout({
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
-                  href="#"
+                  // href="#"
                   className="text-white hover:text-white"
                 >
-                  Building Your Project
+                  Project Window
                 </BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
