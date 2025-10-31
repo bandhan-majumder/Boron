@@ -6,7 +6,16 @@ import { FileItem, Step, StepAfterConvert } from "../../types/index";
 import { filterStepsToFiles, modifySteps } from "../../lib/step";
 import { useWebContainer } from "../../hooks/useWebcontainer";
 import { PreviewFrame } from "../PreviewFrame";
-import { Loader2, FileText, FolderOpen, ChevronRight, CheckCircle2, Eye, Code, Download } from "lucide-react";
+import {
+  Loader2,
+  FileText,
+  FolderOpen,
+  ChevronRight,
+  CheckCircle2,
+  Eye,
+  Code,
+  Download,
+} from "lucide-react";
 import { CodeEditor } from "../CodeEditor";
 import toast from "react-hot-toast";
 import { ScrollArea } from "../ui/scroll-area";
@@ -18,14 +27,16 @@ interface EditorScreenProps {
 
 export default function EditorScreen({
   initialSteps,
-  isStreaming = false
+  isStreaming = false,
 }: EditorScreenProps) {
   const [steps, setSteps] = useState<Step[]>([]);
   const [files, setFiles] = useState<FileItem[]>([]);
   const webcontainer = useWebContainer();
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [view, setView] = useState<"code" | "preview">("code");
-  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(new Set());
+  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
+    new Set(),
+  );
   const prevStepsLengthRef = useRef(0);
 
   // Update steps when initialSteps changes (streaming)
@@ -72,11 +83,11 @@ export default function EditorScreen({
           mountStructure[file.name] = {
             directory: file.children
               ? Object.fromEntries(
-                file.children.map((child) => [
-                  child.name,
-                  processFile(child, false),
-                ]),
-              )
+                  file.children.map((child) => [
+                    child.name,
+                    processFile(child, false),
+                  ]),
+                )
               : {},
           };
         } else if (file.type === "file") {
@@ -113,7 +124,7 @@ export default function EditorScreen({
     steps.forEach((step, idx) => {
       if (!step.filePath) return;
 
-      const parts = step.filePath.split('/');
+      const parts = step.filePath.split("/");
       let current = tree;
 
       parts.forEach((part, index) => {
@@ -131,9 +142,9 @@ export default function EditorScreen({
     return tree;
   };
 
-  const renderTree = (node: any, path: string = '', level: number = 0) => {
+  const renderTree = (node: any, path: string = "", level: number = 0) => {
     return Object.keys(node).map((key) => {
-      if (key === '_index') return null;
+      if (key === "_index") return null;
 
       const value = node[key];
       const isFile = value.type !== undefined;
@@ -148,17 +159,19 @@ export default function EditorScreen({
           <div
             key={fullPath}
             onClick={() => {
-              setSelectedFile(value)
+              setSelectedFile(value);
             }}
             className={`
               flex items-center gap-2 px-3 py-2 cursor-pointer transition-all
-              ${isSelected ? 'bg-gray-700/50 text-gray-300' : 'hover:bg-gray-700/50 text-gray-300'}
+              ${isSelected ? "bg-gray-700/50 text-gray-300" : "hover:bg-gray-700/50 text-gray-300"}
             `}
             style={{ paddingLeft: `${level * 16 + 12}px` }}
           >
             <FileText className="w-4 h-4 flex-shrink-0" />
             <span className="text-sm font-mono truncate">{key}</span>
-            {isAnimating && <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto animate-bounce" />}
+            {isAnimating && (
+              <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto animate-bounce" />
+            )}
           </div>
         );
       } else {
@@ -172,9 +185,7 @@ export default function EditorScreen({
               <FolderOpen className="w-4 h-4 text-yellow-500" />
               <span className="text-sm text-gray-300">{key}</span>
             </summary>
-            <div>
-              {renderTree(value, fullPath, level + 1)}
-            </div>
+            <div>{renderTree(value, fullPath, level + 1)}</div>
           </details>
         );
       }
@@ -191,11 +202,11 @@ export default function EditorScreen({
     }
 
     try {
-      const JSZip = (await import('jszip')).default;
+      const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
-      
+
       const processFilesForZip = (fileItems: FileItem[], folder: any) => {
-        fileItems.forEach(file => {
+        fileItems.forEach((file) => {
           if (file.type === "file") {
             folder.file(file.name, file.content || "");
           } else if (file.type === "folder" && file.children) {
@@ -210,7 +221,7 @@ export default function EditorScreen({
 
       // Generate zip file
       const blob = await zip.generateAsync({ type: "blob" });
-      
+
       // Download the zip
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -243,13 +254,11 @@ export default function EditorScreen({
       );
     }
 
-    return (
-      <PreviewFrame webContainer={webcontainer} />
-    );
+    return <PreviewFrame webContainer={webcontainer} />;
   }, [webcontainer]);
 
   return (
-    <div  className="flex h-full bg-[#1a1a1a] text-white">
+    <div className="flex h-full bg-[#1a1a1a] text-white">
       <div className="w-80 bg-[#1e1e1e] border-r border-gray-700 flex flex-col">
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
           <h2 className="font-semibold flex items-center gap-2">
@@ -272,15 +281,13 @@ export default function EditorScreen({
                 <p className="text-sm">Waiting for files...</p>
               </div>
             ) : (
-              <div className="py-2">
-                {renderTree(fileTree)}
-              </div>
+              <div className="py-2">{renderTree(fileTree)}</div>
             )}
           </ScrollArea>
         </div>
 
         <div className="p-3 border-t border-gray-700 text-xs text-gray-400">
-          {steps.length} file{steps.length !== 1 ? 's' : ''} generated
+          {steps.length} file{steps.length !== 1 ? "s" : ""} generated
         </div>
       </div>
 
@@ -289,8 +296,9 @@ export default function EditorScreen({
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-blue-500" />
             <span className="font-mono text-sm">
-              {//@ts-ignore
-                selectedFile?.filePath || 'No file selected'
+              {
+                //@ts-ignore
+                selectedFile?.filePath || "No file selected"
               }
             </span>
           </div>
@@ -305,12 +313,13 @@ export default function EditorScreen({
 
           <div className="flex items-center gap-2 bg-[#1e1e1e] rounded-lg p-1">
             <button
-              onClick={() => setView('code')}
+              onClick={() => setView("code")}
               className={`
                 flex items-center gap-2 px-3 py-1.5 rounded transition-colors text-sm
-                ${view === 'code'
-                  ? 'bg-white text-black'
-                  : 'text-gray-400 hover:text-gray-200'
+                ${
+                  view === "code"
+                    ? "bg-white text-black"
+                    : "text-gray-400 hover:text-gray-200"
                 }
               `}
             >
@@ -318,12 +327,13 @@ export default function EditorScreen({
               Code
             </button>
             <button
-              onClick={() => setView('preview')}
+              onClick={() => setView("preview")}
               className={`
                 flex items-center gap-2 px-3 py-1.5 rounded transition-colors text-sm
-                ${view === 'preview'
-                  ? 'bg-white text-black'
-                  : 'text-gray-400 hover:text-gray-200'
+                ${
+                  view === "preview"
+                    ? "bg-white text-black"
+                    : "text-gray-400 hover:text-gray-200"
                 }
               `}
             >
@@ -334,7 +344,7 @@ export default function EditorScreen({
         </div>
 
         <div className="flex-1 overflow-hidden">
-          {view === 'code' ? (
+          {view === "code" ? (
             selectedFile ? (
               <CodeEditor file={selectedFile} />
             ) : (
@@ -346,9 +356,7 @@ export default function EditorScreen({
               </div>
             )
           ) : (
-            <div className="h-full">
-              {previewFrame}
-            </div>
+            <div className="h-full">{previewFrame}</div>
           )}
         </div>
       </div>

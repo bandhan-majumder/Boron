@@ -8,7 +8,7 @@ export function useCreateRoom() {
     mutationKey: ["createRoom"],
     mutationFn: async ({ roomName }: { roomName: string }) => {
       if (!roomName) {
-        throw new Error("Room name is required!")
+        throw new Error("Room name is required!");
       }
       try {
         const response = await axios.post("/api/room", { roomName });

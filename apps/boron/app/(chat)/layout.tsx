@@ -53,9 +53,7 @@ export default async function ChatLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <div className="flex-1 overflow-hidden">
-          {children}
-        </div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

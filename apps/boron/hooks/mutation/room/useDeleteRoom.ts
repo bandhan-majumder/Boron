@@ -8,10 +8,12 @@ export function useDeleteRoom() {
     mutationKey: ["deleteRoom"],
     mutationFn: async ({ roomId }: { roomId: string }) => {
       if (!roomId) {
-        throw new Error("Room name is required!")
+        throw new Error("Room name is required!");
       }
       try {
-        const response = await axios.delete("/api/room", { params: { roomId } });
+        const response = await axios.delete("/api/room", {
+          params: { roomId },
+        });
         return response.data.room;
       } catch (err) {
         throw new Error("Internal Server Error");

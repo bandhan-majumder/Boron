@@ -12,14 +12,14 @@ export const reactBasePromptSchema = z.object({
         type: z.string().describe("Always use 'file' as the type"),
         filePath: z.string().describe("The file path relative to project root"),
         content: z.string().describe("The complete file content"),
-      })
+      }),
     ),
   }),
 });
 
 export type ReactBasePromptType = z.infer<typeof reactBasePromptSchema>;
 
-export const reactBaseTemplateAsJson : ReactBasePromptType = {
+export const reactBaseTemplateAsJson: ReactBasePromptType = {
   boronArtifact: {
     id: "project-import",
     title: "Project Files",
@@ -27,7 +27,8 @@ export const reactBaseTemplateAsJson : ReactBasePromptType = {
       {
         type: "file",
         filePath: ".gitignore",
-        content: "logs\n*.log\npm-debug.log*\nyarn-debug.log*\nyarn-error.log*\npnpm-debug.log*\nlerna-debug.log*\nnode_modules\ndist\ndist-ssr\n*.local\n.vscode/*\n!.vscode/extensions.json\n.idea\n.DS_Store\n*.suo\n*.ntvs*\n*.njsproj\n*.sln\n*.sw?",
+        content:
+          "logs\n*.log\npm-debug.log*\nyarn-debug.log*\nyarn-error.log*\npnpm-debug.log*\nlerna-debug.log*\nnode_modules\ndist\ndist-ssr\n*.local\n.vscode/*\n!.vscode/extensions.json\n.idea\n.DS_Store\n*.suo\n*.ntvs*\n*.njsproj\n*.sln\n*.sw?",
       },
       {
         type: "file",

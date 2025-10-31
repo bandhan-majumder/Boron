@@ -23,11 +23,11 @@ export const ChatHistorySkeleton = () => (
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-16 w-80 rounded-lg" />
       </div>
-       <User className="w-5 h-5 text-white" />
+      <User className="w-5 h-5 text-white" />
     </div>
 
     <div className="flex gap-4 justify-start">
-     <Bot className="w-5 h-5 text-white" />
+      <Bot className="w-5 h-5 text-white" />
       <div className="max-w-[70%] space-y-2">
         <Skeleton className="h-24 w-[450px] rounded-lg" />
         <Skeleton className="h-10 w-46 rounded-lg" />

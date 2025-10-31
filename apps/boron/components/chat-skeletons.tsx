@@ -1,4 +1,4 @@
-import { Skeleton } from "./ui/skeleton"
+import { Skeleton } from "./ui/skeleton";
 
 export function ChatSkeleton() {
   return (
@@ -14,5 +14,5 @@ export function ChatSkeleton() {
       <Skeleton className="h-6 w-full rounded-sm" />
       <Skeleton className="h-6 w-full rounded-sm" />
     </div>
-  )
+  );
 }

@@ -12,7 +12,7 @@ export function parseBoronActions(response: any): ResponseAfterConvert {
   try {
     // Handle both string and object inputs
     let parsedData = response;
-    
+
     if (typeof response === "string") {
       parsedData = JSON.parse(response);
     }
@@ -35,27 +35,29 @@ export function parseBoronActions(response: any): ResponseAfterConvert {
       );
     }
 
-    const steps: StepAfterConvert[] = boronData.boronActions.map((action: any, index: number) => {
-      // Validate required fields
-      if (!action.filePath) {
-        throw new Error(`Missing filePath at action ${index}`);
-      }
+    const steps: StepAfterConvert[] = boronData.boronActions.map(
+      (action: any, index: number) => {
+        // Validate required fields
+        if (!action.filePath) {
+          throw new Error(`Missing filePath at action ${index}`);
+        }
 
-      if (action.content === undefined || action.content === null) {
-        throw new Error(`Missing content at action ${index}`);
-      }
+        if (action.content === undefined || action.content === null) {
+          throw new Error(`Missing content at action ${index}`);
+        }
 
-      const step: StepAfterConvert = {
-        type: ActionType.file, // Schema only supports 'file' type
-        filePath: action.filePath,
-        content:
-          typeof action.content === "object"
-            ? JSON.stringify(action.content, null, 2)
-            : String(action.content),
-      };
+        const step: StepAfterConvert = {
+          type: ActionType.file, // Schema only supports 'file' type
+          filePath: action.filePath,
+          content:
+            typeof action.content === "object"
+              ? JSON.stringify(action.content, null, 2)
+              : String(action.content),
+        };
 
-      return step;
-    });
+        return step;
+      },
+    );
 
     if (steps.length === 0) {
       throw new Error("No valid actions found in response");

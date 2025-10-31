@@ -4,25 +4,24 @@ import { getChatRoom } from "../../../../lib/db/room";
 import { redirect } from "next/navigation";
 
 type Props = {
-    params: Promise<{ roomId: string }>
-}
+  params: Promise<{ roomId: string }>;
+};
 
 export default async function ChatPageScreen({ params }: Props) {
-    const { roomId } = await params;
+  const { roomId } = await params;
 
-    if (!isUuid(roomId)) {
+  if (!isUuid(roomId)) {
+    redirect("/new");
+  }
 
-        redirect("/new")
+  try {
+    const room = await getChatRoom(roomId);
+    if (!room) {
+      throw new Error("Project does not exist");
     }
+  } catch {
+    redirect("/new");
+  }
 
-    try {
-        const room = await getChatRoom(roomId);
-        if (!room) {
-            throw new Error("Project does not exist")
-        }
-    } catch {
-        redirect("/new")
-    }
-
-    return <ChatPage chatRoomId={roomId} isNew={false} />;
+  return <ChatPage chatRoomId={roomId} isNew={false} />;
 }
