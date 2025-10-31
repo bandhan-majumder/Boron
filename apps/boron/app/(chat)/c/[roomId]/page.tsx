@@ -16,13 +16,13 @@ export default async function ChatPageScreen({ params }: Props) {
     }
 
     try {
-       const room = await getChatRoom(roomId);
-       if(!room){
-        throw new Error("Project does not exist")
-       }
+        const room = await getChatRoom(roomId);
+        if (!room) {
+            throw new Error("Project does not exist")
+        }
     } catch {
         redirect("/new")
     }
 
-    return <ChatPage chatRoomId={roomId} />;
+    return <ChatPage chatRoomId={roomId} isNew={false} />;
 }

@@ -26,9 +26,10 @@ import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChatHistorySkeleton, InitializingSkeleton, GeneratingFilesSkeleton, CreatingRoomSkeleton } from "../skeletons/ChatPageSkeletons";
+import { ChatHistorySkeleton } from "../skeletons/ChatPageSkeletons";
 import axios from "axios";
 import { ScrollArea } from "../ui/scroll-area";
+import { Button } from "../ui/button";
 
 export const maxDuration = 30;
 
@@ -65,6 +66,7 @@ export default function ChatPage({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // for newly created chat windows from the sidebar
   useEffect(() => {
     const stored = sessionStorage.getItem("isNew");
     if (stored === "true") {
@@ -90,7 +92,18 @@ export default function ChatPage({
 
   useEffect(() => {
     if (!isNew && chatRoomId) {
-      loadChatHistory();
+      const pending = sessionStorage.getItem('pendingMessage');
+      
+      if (pending) {
+        sessionStorage.removeItem('pendingMessage');
+        const message = JSON.parse(pending) as PromptInputMessage;
+        
+        setTimeout(() => {
+          processMessage(message, chatRoomId);
+        }, 100);
+      } else {
+        loadChatHistory();
+      }
     }
   }, [chatRoomId, isNew]);
 
@@ -133,14 +146,17 @@ export default function ChatPage({
   };
 
   useEffect(() => {
-    setStreamingSteps([]);
-    setProcessingError(null);
-    setText('');
-    setStatus('ready');
-    setPendingMessage(null);
-    setChatHistory([]);
-    setCurrentStreamingMessageId(null);
-    setOpenEditorId(null);
+    const hasPendingMessage = sessionStorage.getItem('pendingMessage');
+    if (!hasPendingMessage) {
+      setStreamingSteps([]);
+      setProcessingError(null);
+      setText('');
+      setStatus('ready');
+      setPendingMessage(null);
+      setChatHistory([]);
+      setCurrentStreamingMessageId(null);
+      setOpenEditorId(null);
+    }
   }, [chatRoomId]);
 
   useEffect(() => {
@@ -292,8 +308,8 @@ export default function ChatPage({
 
       try {
         const newRoom = await createRoomHandler("New project");
-        router.push(`/c/${newRoom.id}`);
         sessionStorage.setItem('pendingMessage', JSON.stringify(message));
+        router.push(`/c/${newRoom.id}`);
       } catch (error) {
         console.error('Failed to create room:', error);
         setStatus('error');
@@ -304,17 +320,6 @@ export default function ChatPage({
       await processMessage(message, chatRoomId ?? "");
     }
   };
-
-  useEffect(() => {
-    if (!isNew && chatRoomId) {
-      const pending = sessionStorage.getItem('pendingMessage');
-      if (pending) {
-        sessionStorage.removeItem('pendingMessage');
-        const message = JSON.parse(pending) as PromptInputMessage;
-        processMessage(message, chatRoomId);
-      }
-    }
-  }, [isNew, chatRoomId]);
 
   const handleDismissError = useCallback(() => {
     setProcessingError(null);
@@ -330,7 +335,6 @@ export default function ChatPage({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Scrollable chat content */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="flex justify-center px-6 py-6 pb-32">
@@ -377,7 +381,7 @@ export default function ChatPage({
                           <div className="text-sm whitespace-pre-wrap break-words">
                             {msg.sender === 'user' ? msg.chat : (
                               msg.id === currentStreamingMessageId && (status === 'streaming' || status === 'submitted')
-                                ? 'Generating project files...'
+                                ? 'Answering query...'
                                 : 'Generated project files'
                             )}
                           </div>
@@ -423,29 +427,17 @@ export default function ChatPage({
                 </div>
               )}
 
-              {status === 'submitted' && chatHistory.length === 0 && isNew && (
-                <CreatingRoomSkeleton />
-              )}
-
-              {status === 'submitted' && chatHistory.length === 0 && !isNew && (
-                <InitializingSkeleton />
-              )}
-
-              {status === 'streaming' && streamingSteps.length === 0 && (
-                <GeneratingFilesSkeleton />
-              )}
-
               {processingError && (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="text-center text-red-400 max-w-md bg-red-950/20 border border-red-500/30 rounded-lg p-6">
-                    <h2 className="text-xl font-semibold mb-2">Error</h2>
-                    <p className="mb-4">{processingError}</p>
-                    <button
+                  <div className="text-cente max-w-md p-6 flex flex-col">
+                    <h2 className="text-gray-400 text-xl font-semibold mb-2">Something went wrong!</h2>
+                    <Button
                       onClick={handleDismissError}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      variant={"link"}
+                      className="text-lg text-yellow-50 outline-none border-none"
                     >
                       Try Again
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -454,7 +446,6 @@ export default function ChatPage({
         </ScrollArea>
       </div>
 
-      {/* Fixed input at bottom - stays within the flex container */}
       <div className="flex-shrink-0 border-none bg-transparent">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <div className="rounded-lg shadow-none">
@@ -491,8 +482,6 @@ export default function ChatPage({
         </div>
       </div>
 
-
-      {/* Full Screen Editor Modal */}
       {openEditorId !== null && openEditorSteps && openEditorSteps.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="absolute inset-0 bg-[#1a1a1a] animate-in slide-in-from-bottom duration-300 flex flex-col">

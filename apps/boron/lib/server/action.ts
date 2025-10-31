@@ -26,8 +26,24 @@ export async function generate(input: string, chatRoomId: string) {
     try {
       await createChat(chatRoomId, 'user', input, session.user.id);
 
-      const answer = "react";
-      const template = findTemplateHelper(answer);
+      // find if it is project related query
+      // generateObject({
+      //   model: google("gemini-2.5-flash"),
+      //   system: "You are a professional agent that creates React applications and take users feedback to improve existing code or add change. You can easily detect irrelevent informaition from the user input. Given the user input, determine if the input is related to React project development or not. If it is related to React project development, respond with 'yes', otherwise respond with 'no'.",
+      //   prompt: input,
+      //   schema: z.object({
+      //     decision: z.boolean().describe("Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.")
+      //   }),
+      // }).then(({ object: summarizedText }) => {
+      //   const decision = summarizedText.decision;
+      //   if (!decision) {
+      //     updateChatRoomName(chatRoomId, "General Discussion");
+      //   }
+      // }).catch(error => {
+      //   console.error("Failed to proceed converstation:", error);
+      // });
+
+      const template = findTemplateHelper("react");
       const allPrevChats = await getAllChat(chatRoomId);
       const allPrevAIMessages = await getLastAIChat(chatRoomId);
 
