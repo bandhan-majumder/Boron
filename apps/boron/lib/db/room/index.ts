@@ -16,11 +16,12 @@ export const getAllChatRooms = async ({ userId }: { userId: string }) => {
   }
 };
 
-export const getChatRoom = async (roomId: string) => {
+export const getChatRoom = async (roomId: string, userId: string) => {
   try {
     const chatRoom = await prismaClient.chatRoom.findFirst({
       where: {
         id: roomId,
+        creatorId: userId,
       },
     });
     return chatRoom;
