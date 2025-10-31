@@ -129,6 +129,7 @@ export function NavUser({ session }: { session: SessionType | null }) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator /> */}
             <DropdownMenuItem
+            className="text-red-600 hover:bg-red-400 hover:text-red-600"
               onClick={async () => {
                 try {
                   await signOut();
