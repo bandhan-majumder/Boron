@@ -95,7 +95,8 @@ export function PreviewFrame({ webContainer }: PreviewFrameProps) {
             <LoadingBars />
           </div>
           <p>Loading preview...</p>
-          <p>It generally takes around 1-2 mintues. Please wait!</p>
+          <p className="mt-5">It generally takes around 1-2 mintues. Please wait!</p>
+          <p className="mt-1">Tip: Open developer console to see progress</p>
         </div>
       )}
       {!isLoading && url && (
