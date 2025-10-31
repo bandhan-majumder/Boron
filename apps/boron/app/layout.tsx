@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Boron - MVP Builder",
-  description: "Build, edit and ship in a single application.",
+  description: "Build, edit and preview in a single screen.",
 };
 
 export default function RootLayout({
