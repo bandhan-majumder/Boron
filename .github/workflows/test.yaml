@@ -1,9 +1,9 @@
-name: Build on PR
+name: Test on PR
 on:
-  workflow_run:
-    workflows: ["Test on PR"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 jobs:
@@ -31,5 +31,5 @@ jobs:
       - name: Generate prisma client
         run: pnpm client
 
-      - name: Run Build
-        run: pnpm run build
+      - name: Run Test
+        run: pnpm test

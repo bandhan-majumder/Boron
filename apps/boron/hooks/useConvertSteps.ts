@@ -10,17 +10,14 @@ import {
 
 export function parseBoronActions(response: any): ResponseAfterConvert {
   try {
-    // Handle both string and object inputs
     let parsedData = response;
 
     if (typeof response === "string") {
       parsedData = JSON.parse(response);
     }
 
-    // Check if we have the boronArtifact wrapper
     const boronData = parsedData?.boronArtifact || parsedData;
 
-    // Validate structure
     if (
       !(
         boronData &&
@@ -37,7 +34,6 @@ export function parseBoronActions(response: any): ResponseAfterConvert {
 
     const steps: StepAfterConvert[] = boronData.boronActions.map(
       (action: any, index: number) => {
-        // Validate required fields
         if (!action.filePath) {
           throw new Error(`Missing filePath at action ${index}`);
         }
