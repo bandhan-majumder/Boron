@@ -381,7 +381,16 @@ export default function ChatPage({
                           <div className="text-sm whitespace-pre-wrap break-words">
                             {msg.sender === 'user' ? msg.chat : (
                               msg.id === currentStreamingMessageId && (status === 'streaming' || status === 'submitted')
-                                ? 'Answering query...'
+                                ? (
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex gap-1">
+                                      <span className="w-2 h-2 bg-[#626261] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                      <span className="w-2 h-2 bg-[#626261] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                      <span className="w-2 h-2 bg-[#626261] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    </div>
+                                    <span className="text-gray-300">Thinking...</span>
+                                  </div>
+                                )
                                 : 'Generated project files'
                             )}
                           </div>
