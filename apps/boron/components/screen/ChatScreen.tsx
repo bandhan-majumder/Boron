@@ -457,8 +457,8 @@ export default function ChatPage({
       {/* Fixed input at bottom - stays within the flex container */}
       <div className="flex-shrink-0 border-none bg-transparent">
         <div className="max-w-2xl mx-auto px-6 py-4">
-          <div className="bg-[#272725]/60 backdrop-blur-md rounded-lg shadow-none">
-            <PromptInput className="bg-transparent text-white" globalDrop multiple onSubmit={handleSubmit}>
+          <div className="rounded-lg shadow-none">
+            <PromptInput className="bg-[#30302E] text-white" globalDrop multiple onSubmit={handleSubmit}>
               <PromptInputBody>
                 <PromptInputAttachments>
                   {(attachment) => <PromptInputAttachment data={attachment} />}

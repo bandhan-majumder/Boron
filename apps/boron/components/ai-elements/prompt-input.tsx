@@ -750,7 +750,7 @@ export const PromptInput = ({
         onSubmit={handleSubmit}
         {...props}
       >
-        <InputGroup className="border-[#A1A1A1] outline-none">{children}</InputGroup>
+        <InputGroup className="border-[#40403C] border outline-none">{children}</InputGroup>
       </form>
     </>
   );

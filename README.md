@@ -1,6 +1,7 @@
 <div align="center">
 <img src="assets/image.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
 <br />
+<img src="assets/image-editor.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
 <img src="assets/image-modal.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
 
 ## Boron - A GPT wrapper that builds and previews your MVP
