@@ -28,10 +28,15 @@ export async function generate(input: string, chatRoomId: string) {
 
       const { object: decisionObject } = await generateObject({
         model: google("gemini-2.5-flash"),
-        system: "You are a professional agent that creates React applications and takes user feedback to improve existing code or add changes. You can easily detect irrelevant information from queries. Given the user input, determine if the input is related to React project development or not. A requets containing replicating design or functionalities of a bad reputed or adult site or any illegal site is considered as non-project related.",
+        system:
+          "You are a professional agent that creates React applications and takes user feedback to improve existing code or add changes. You can easily detect irrelevant information from queries. Given the user input, determine if the input is related to React project development or not. A requets containing replicating design or functionalities of a bad reputed or adult site or any illegal site is considered as non-project related.",
         prompt: input,
         schema: z.object({
-          decision: z.boolean().describe("Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.")
+          decision: z
+            .boolean()
+            .describe(
+              "Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.",
+            ),
         }),
       });
 
@@ -40,12 +45,19 @@ export async function generate(input: string, chatRoomId: string) {
       if (!isProjectRelated) {
         const response = await generateText({
           model: google("gemini-2.5-flash"),
-          system: "You are Boron, a professional assistant. You can easily handle user queries. Given the user input, provide a concise and relevant response to the user's query. If the query is not clear, ask for more information. Do not provide any response to any sensitive, adult or harmful queries and respond with a general message that you can not assist with the request and you can help users to create useful non-sensitive React websites only. If the user asks to replicate a design or functionalities of a bad reputed or adult site or any illegal site, please do not provide any code or do not ask any further related questions. Simply say you can not assist with that request.",
+          system:
+            "You are Boron, a professional assistant. You can easily handle user queries. Given the user input, provide a concise and relevant response to the user's query. If the query is not clear, ask for more information. Do not provide any response to any sensitive, adult or harmful queries and respond with a general message that you can not assist with the request and you can help users to create useful non-sensitive React websites only. If the user asks to replicate a design or functionalities of a bad reputed or adult site or any illegal site, please do not provide any code or do not ask any further related questions. Simply say you can not assist with that request.",
           prompt: input,
         });
 
-        await createChat(chatRoomId, "assistant", response.text, undefined, false);
-        
+        await createChat(
+          chatRoomId,
+          "assistant",
+          response.text,
+          undefined,
+          false,
+        );
+
         stream.update({ text: response.text, isProjectCode: false });
         stream.done();
         return;

@@ -284,7 +284,12 @@ export default function ChatPage({
               setChatHistory((prev) =>
                 prev.map((msg) =>
                   msg.id === assistantMessageId
-                    ? { ...msg, chat: assistantResponse, isProjectCode: true, steps }
+                    ? {
+                        ...msg,
+                        chat: assistantResponse,
+                        isProjectCode: true,
+                        steps,
+                      }
                     : msg,
                 ),
               );
