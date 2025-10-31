@@ -9,6 +9,7 @@ import { PreviewFrame } from "../PreviewFrame";
 import { Loader2, FileText, FolderOpen, ChevronRight, CheckCircle2, Eye, Code, Download } from "lucide-react";
 import { CodeEditor } from "../CodeEditor";
 import toast from "react-hot-toast";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface EditorScreenProps {
   initialSteps: StepAfterConvert[];
@@ -248,7 +249,7 @@ export default function EditorScreen({
   }, [webcontainer]);
 
   return (
-    <div className="flex h-screen bg-[#1a1a1a] text-white">
+    <div  className="flex h-full bg-[#1a1a1a] text-white">
       {/* Sidebar - File Tree */}
       <div className="w-80 bg-[#1e1e1e] border-r border-gray-700 flex flex-col">
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
@@ -264,17 +265,19 @@ export default function EditorScreen({
           )}
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {steps.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-              <p className="text-sm">Waiting for files...</p>
-            </div>
-          ) : (
-            <div className="py-2">
-              {renderTree(fileTree)}
-            </div>
-          )}
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            {steps.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+                <p className="text-sm">Waiting for files...</p>
+              </div>
+            ) : (
+              <div className="py-2">
+                {renderTree(fileTree)}
+              </div>
+            )}
+          </ScrollArea>
         </div>
 
         <div className="p-3 border-t border-gray-700 text-xs text-gray-400">
