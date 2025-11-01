@@ -150,7 +150,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                       </Link>
                     </SidebarMenuButton>
 
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                       <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <button
