@@ -15,6 +15,7 @@ import {
   Eye,
   Code,
   Download,
+  Menu,
 } from "lucide-react";
 import { CodeEditor } from "../CodeEditor";
 import toast from "react-hot-toast";
@@ -25,6 +26,10 @@ interface EditorScreenProps {
   isStreaming?: boolean;
 }
 
+interface SidebarState {
+  mobileOpen: boolean;
+  desktopOpen: boolean;
+}
 export default function EditorScreen({
   initialSteps,
   isStreaming = false,
@@ -34,6 +39,10 @@ export default function EditorScreen({
   const webcontainer = useWebContainer();
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [view, setView] = useState<"code" | "preview">("code");
+  const [sidebarOpen, setSidebarOpen] = useState<SidebarState>({
+    desktopOpen: true,
+    mobileOpen: false,
+  });
   const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
     new Set(),
   );
@@ -167,7 +176,7 @@ export default function EditorScreen({
             `}
             style={{ paddingLeft: `${level * 16 + 12}px` }}
           >
-            <FileText className="w-4 h-4 flex-shrink-0" />
+            <FileText className="w-4 h-4 shrink-0" />
             <span className="text-sm font-mono truncate">{key}</span>
             {isAnimating && (
               <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto animate-bounce" />
@@ -239,7 +248,40 @@ export default function EditorScreen({
     }
   };
 
-  // Memoize preview frame
+  const SidebarContent = () => (
+    <>
+      <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+        <h2 className="font-semibold flex items-center gap-2">
+          <FolderOpen className="w-5 h-5 text-blue-500" />
+          Project Files
+        </h2>
+        {isStreaming && (
+          <div className="flex items-center gap-2 text-xs text-green-400">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Generating...</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          {steps.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+              <p className="text-sm">Waiting for files...</p>
+            </div>
+          ) : (
+            <div className="py-2">{renderTree(fileTree)}</div>
+          )}
+        </ScrollArea>
+      </div>
+
+      <div className="p-3 border-t border-gray-700 text-xs text-gray-400">
+        {steps.length} file{steps.length !== 1 ? "s" : ""} generated
+      </div>
+    </>
+  );
+
   const previewFrame = useMemo(() => {
     if (!webcontainer) {
       return (
@@ -247,7 +289,7 @@ export default function EditorScreen({
           <div className="text-center">
             <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
             <p>Loading preview...</p>
-            <p>It generally takes around 1-2 mintues. Please wait!</p>
+            <p>It generally takes around 1-2 minutes. Please wait!</p>
             <p>Tip: Open developer console for seeing progress</p>
           </div>
         </div>
@@ -258,60 +300,69 @@ export default function EditorScreen({
   }, [webcontainer]);
 
   return (
-    <div className="flex h-full bg-[#1a1a1a] text-white">
-      <div className="w-80 bg-[#1e1e1e] border-r border-gray-700 flex flex-col">
-        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="font-semibold flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 text-blue-500" />
-            Project Files
-          </h2>
-          {isStreaming && (
-            <div className="flex items-center gap-2 text-xs text-green-400">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Generating...</span>
-            </div>
-          )}
+    <div className="flex h-screen bg-[#1a1a1a] text-white overflow-hidden">
+      {sidebarOpen.desktopOpen && (
+        <div className="hidden lg:flex w-80 bg-[#1e1e1e] border-r border-gray-700 flex-col">
+          <SidebarContent />
         </div>
+      )}
 
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            {steps.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-                <p className="text-sm">Waiting for files...</p>
-              </div>
-            ) : (
-              <div className="py-2">{renderTree(fileTree)}</div>
-            )}
-          </ScrollArea>
+      {sidebarOpen.mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 bg-black/50"
+          onClick={() =>
+            setSidebarOpen((prevState) => ({ ...prevState, mobileOpen: false }))
+          }
+        >
+          <div
+            className="w-80 h-full bg-[#1e1e1e] border-r border-gray-700 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SidebarContent />
+          </div>
         </div>
+      )}
 
-        <div className="p-3 border-t border-gray-700 text-xs text-gray-400">
-          {steps.length} file{steps.length !== 1 ? "s" : ""} generated
-        </div>
-      </div>
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="bg-[#2d2d2d] px-4 py-3 border-b border-gray-700 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {/* Mobile menu button */}
+            <button
+              onClick={() =>
+                setSidebarOpen((prevState) => ({
+                  ...prevState,
+                  mobileOpen: true,
+                }))
+              }
+              className="lg:hidden p-1.5 hover:bg-gray-700 rounded"
+              aria-label="Open files"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
 
-      <div className="flex-1 flex flex-col">
-        <div className="bg-[#2d2d2d] px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-blue-500" />
-            <span className="font-mono text-sm">
+            {/* Desktop menu button */}
+            <button
+              onClick={() =>
+                setSidebarOpen((prevState) => ({
+                  ...prevState,
+                  desktopOpen: !prevState.desktopOpen,
+                }))
+              }
+              className="hidden lg:block p-1.5 hover:bg-gray-700 rounded"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <FileText className="w-4 h-4 text-blue-500 shrink-0" />
+            <span className="font-mono text-sm truncate">
               {
                 //@ts-ignore
                 selectedFile?.filePath || "No file selected"
               }
             </span>
           </div>
-
-          <button
-            onClick={downloadAllFiles}
-            className="flex items-center gap-2 px-3 py-1.5 rounded border-none outline-none cursor-pointer text-sm text-white"
-          >
-            <Download className="w-4 h-4" />
-            Download Project
-          </button>
-
-          <div className="flex items-center gap-2 bg-[#1e1e1e] rounded-lg p-1">
+          <div className="hidden md:flex items-center gap-2 bg-[#1e1e1e] rounded-lg p-1">
             <button
               onClick={() => setView("code")}
               className={`
@@ -341,23 +392,53 @@ export default function EditorScreen({
               Preview
             </button>
           </div>
+
+          <button
+            onClick={downloadAllFiles}
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-sm text-white hover:bg-gray-700 shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Download</span>
+          </button>
         </div>
 
-        <div className="flex-1 overflow-hidden">
-          {view === "code" ? (
-            selectedFile ? (
+        <div className="flex-1 overflow-hidden relative">
+          {/* Desktop View */}
+          <div className="hidden md:block h-full">
+            {view === "code" ? (
+              selectedFile ? (
+                <CodeEditor file={selectedFile} />
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500">
+                  <div className="text-center">
+                    <FileText className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                    <p>Select a file to view its contents</p>
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="h-full">{previewFrame}</div>
+            )}
+          </div>
+
+          {/* Mobile View */}
+          <div className="md:hidden h-full">
+            {selectedFile ? (
               <CodeEditor file={selectedFile} />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <FileText className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                  <p>Select a file to view its contents</p>
+                <div className="text-center p-4">
+                  <FileText className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                  <p className="text-sm">Tap the menu icon to select a file</p>
                 </div>
               </div>
-            )
-          ) : (
-            <div className="h-full">{previewFrame}</div>
-          )}
+            )}
+          </div>
+
+          <div className="md:hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#6b6b6b] text-black px-3 py-1.5 rounded-full text-xs shadow-lg flex items-center gap-2 pointer-events-none z-10">
+            <Eye className="w-7 h-7 md:w-3.5 md:h-3.5" />
+            Preview works on larger screens only
+          </div>
         </div>
       </div>
     </div>

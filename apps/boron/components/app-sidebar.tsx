@@ -19,7 +19,6 @@ import { useCreateRoom } from "../hooks/mutation/room/useCreateRoom";
 import { useGetRooms } from "../hooks/mutation/room/useGetRooms";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChatSkeleton } from "./chat-skeletons";
 import { useDeleteRoom } from "../hooks/mutation/room/useDeleteRoom";
 import toast from "react-hot-toast";
 import { NavUser, SessionType } from "./nav-user";
@@ -30,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/index";
+import { Loader } from "./ai-elements/loader";
 
 interface IRoomData {
   id: string;
@@ -118,8 +118,8 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
         <SidebarGroup className="pt-0 mt-0">
           <SidebarMenu className="gap-2">
             {isLoading && (
-              <div className="text-gray-400 text-sm px-2">
-                <ChatSkeleton />
+              <div className="text-gray-400 flex justify-center h-[20vh]">
+                <Loader size={25} />
               </div>
             )}
             {isError && (
@@ -150,7 +150,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
                       </Link>
                     </SidebarMenuButton>
 
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                       <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <button

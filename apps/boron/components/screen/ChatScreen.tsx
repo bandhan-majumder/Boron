@@ -25,10 +25,10 @@ import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChatHistorySkeleton } from "../skeletons/ChatPageSkeletons";
 import axios from "axios";
 import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
+import { Loader } from "../ai-elements/loader";
 
 export const maxDuration = 30;
 
@@ -389,7 +389,11 @@ export default function ChatPage({
         <ScrollArea className="h-full">
           <div className="flex justify-center px-6 py-6 pb-32">
             <div className="w-full max-w-4xl">
-              {isLoadingHistory && <ChatHistorySkeleton />}
+              {isLoadingHistory && (
+                <div className="w-full flex justify-center h-[30vh]">
+                  <Loader className="text-gray-300" size={30} />
+                </div>
+              )}
 
               {!isLoadingHistory && chatHistory.length === 0 && (
                 <div>
@@ -422,7 +426,7 @@ export default function ChatPage({
                         }`}
                       >
                         {msg.sender === "assistant" && (
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <Bot className="w-5 h-5 text-white" />
                           </div>
                         )}
@@ -434,7 +438,7 @@ export default function ChatPage({
                               : "text-gray-100"
                           }`}
                         >
-                          <div className="text-sm whitespace-pre-wrap break-words">
+                          <div className="text-sm whitespace-pre-wrap wrap-break-words">
                             {msg.sender === "user" ? (
                               msg.chat
                             ) : msg.id === currentStreamingMessageId &&
@@ -468,7 +472,7 @@ export default function ChatPage({
                         </div>
 
                         {msg.sender === "user" && (
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             <User className="w-5 h-5 text-white" />
                           </div>
                         )}
@@ -536,7 +540,7 @@ export default function ChatPage({
         </ScrollArea>
       </div>
 
-      <div className="flex-shrink-0 border-none bg-transparent">
+      <div className="shrink-0 border-none bg-transparent">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <div className="rounded-lg shadow-none">
             <PromptInput
@@ -582,7 +586,7 @@ export default function ChatPage({
         openEditorSteps.length > 0 && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="absolute inset-0 bg-[#1a1a1a] animate-in slide-in-from-bottom duration-300 flex flex-col">
-              <div className="flex-shrink-0 bg-[#2d2d2d] border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+              <div className="shrink-0 bg-[#2d2d2d] border-b border-gray-700 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-blue-500" />
                   <span className="font-semibold text-white">
