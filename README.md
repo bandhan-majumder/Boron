@@ -24,7 +24,8 @@ pnpm install
 copy .env.example file and create a .env file with
 
 ```
-mv apps/boron/.env.example .env
+cp .env.example .env
+cp apps/boron/.env.example apps/boron/.env
 ```
 
 add the valuese of your .env. then run the app by
