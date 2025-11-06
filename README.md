@@ -7,7 +7,7 @@
 ### Watch Boron building a previewing
 
 <video width="auto" height="auto" controls>
-  <source src="assets/Boron.mp4" type="video/mp4">
+  <source src="https://github.com/bandhan-majumder/Boron/assets/Boron.mp4" type="video/mp4">
 </video>
 
 ### Dev Setup
