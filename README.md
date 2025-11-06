@@ -1,12 +1,14 @@
 <div align="center">
-<img src="assets/image.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
-<br />
-<img src="assets/image-editor.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
-<img src="assets/image-modal.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
 
 ## Boron - A GPT wrapper that builds and previews your MVP
 
 </div>
+
+### Watch Boron building a previewing
+
+<video width="auto" height="auto" controls>
+  <source src="assets/Boron.mp4" type="video/mp4">
+</video>
 
 ### Dev Setup
 
