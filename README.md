@@ -2,13 +2,16 @@
 
 ## Boron - A GPT wrapper that builds and previews your MVP
 
+<img src="assets/image.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
+<br />
+<img src="assets/image-editor.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
+<img src="assets/image-modal.png" alt="logo" width="full" style="border: 1px solid #ccc; border-radius: 8px;" />
+
 </div>
 
-<div align="center">
+### Check demo
 
-[![Watch the Boron demo video](https://img.youtube.com/vi/Zn6nJJ5bhRw/maxresdefault.jpg)](https://youtu.be/Zn6nJJ5bhRw)
-
-</div>
+<a href="https://www.youtube.com/watch?v=Zn6nJJ5bhRw" title="watch it building a demo site here">Watch the demo on YouTube</a>
 
 ### Dev Setup
 
