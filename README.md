@@ -4,11 +4,11 @@
 
 </div>
 
-### Watch Boron building a previewing
+<div align="center">
 
-<video width="auto" height="auto" controls>
-  <source src="https://github.com/bandhan-majumder/Boron/blob/main/assets/Boron.mp4" type="video/mp4">
-</video>
+[![Watch the Boron demo video](https://img.youtube.com/vi/Zn6nJJ5bhRw/maxresdefault.jpg)](https://youtu.be/Zn6nJJ5bhRw)
+
+</div>
 
 ### Dev Setup
 
