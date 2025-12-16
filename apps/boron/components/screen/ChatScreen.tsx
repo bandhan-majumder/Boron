@@ -30,7 +30,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 import { Loader } from "../ai-elements/loader";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 type ChatMessage = {
   id: number;
