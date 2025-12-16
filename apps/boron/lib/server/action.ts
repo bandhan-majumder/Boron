@@ -35,7 +35,7 @@ export async function generate(input: string, chatRoomId: string) {
           decision: z
             .boolean()
             .describe(
-              "Decision whether the user input is related to React project development or not. Respond with true for yes and false for no. For complex projects or requests to replicate design or functionalities of a bad reputed or adult site or any illegal site, respond with false.",
+              "Decision whether the user input is related to React project development or not. Respond with true for yes and false for no. Remember that Nextjs based projects are not considered as React projects here. For Nextjs projects, respond with false.",
             ),
         }),
       });

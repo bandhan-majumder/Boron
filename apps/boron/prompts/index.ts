@@ -194,7 +194,8 @@ const getSystemPromptAsJson = () => {
           },
         },
       },
-      importantRules: [        "ALWAYS IMPORT React from React on top of every file that contains JSX!",
+      importantRules: [
+        "ALWAYS IMPORT React from React on top of every file that contains JSX!",
         'NEVER use the word "artifact" in user-facing explanations. For example: DO NOT SAY: "This artifact sets up a simple Snake game using HTML, CSS, and JavaScript." INSTEAD SAY: "We set up a simple Snake game using HTML, CSS, and JavaScript."',
         "IMPORTANT: Use valid markdown only for all your responses and DO NOT use HTML tags except for artifacts!",
         "ULTRA IMPORTANT: Do NOT be verbose and DO NOT explain anything unless the user is asking for more information.",
