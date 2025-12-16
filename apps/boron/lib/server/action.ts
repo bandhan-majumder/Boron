@@ -5,7 +5,7 @@ import { createStreamableValue } from "@ai-sdk/rsc";
 import { z } from "zod";
 import { google } from "@ai-sdk/google";
 import { findTemplateHelper } from "../buildTemplate";
-import { getAllChat, createChat, getLastAIChat } from "../db/chat";
+import { createChat, getLastAIChat } from "../db/chat";
 import { updateChatRoomName } from "../db/room";
 import { auth } from "../auth/auth";
 import { headers } from "next/headers";
@@ -29,13 +29,13 @@ export async function generate(input: string, chatRoomId: string) {
       const { object: decisionObject } = await generateObject({
         model: google("gemini-2.5-flash"),
         system:
-          "You are a professional agent that creates React applications and takes user feedback to improve existing code or add changes. You can easily detect irrelevant information from queries. Given the user input, determine if the input is related to React project development or not. A requets containing replicating design or functionalities of a bad reputed or adult site or any illegal site is considered as non-project related.",
+          "You are a professional agent that creates React applications and takes user feedback to improve existing code or add changes. You can easily detect irrelevant information from queries. Given the user input, determine if the input is related to React project development or not. A requets containing replicating design or functionalities of a bad reputed or adult site or any illegal site is considered as non-project related. ALWAYS determine if the prompt to generate is a complex project or not. A complex project is defined as a project that requires signifcant amount of engineering effort, multiple decisions making, one or more database connection, multiple microservices. Some examples of complex projects are: `Building AWS alternative` or `Building a machine learning based project that rquires a dataset and connects with other services` and related prompt, If the project is complex, ALWAYS tell the user that you are a free tier API to keep the usage free and as lightweight as possible. NEVER EVER generate code for complex projects. If the project is simple, do NOT mention anything about being a free tier API.",
         prompt: input,
         schema: z.object({
           decision: z
             .boolean()
             .describe(
-              "Decision whether the user input is related to React project development or not. Respond with true for yes and false for no.",
+              "Decision whether the user input is related to React project development or not. Respond with true for yes and false for no. For complex projects or requests to replicate design or functionalities of a bad reputed or adult site or any illegal site, respond with false.",
             ),
         }),
       });
@@ -46,7 +46,7 @@ export async function generate(input: string, chatRoomId: string) {
         const response = await generateText({
           model: google("gemini-2.5-flash"),
           system:
-            "You are Boron, a professional assistant. You can easily handle user queries. Given the user input, provide a concise and relevant response to the user's query. If the query is not clear, ask for more information. Do not provide any response to any sensitive, adult or harmful queries and respond with a general message that you can not assist with the request and you can help users to create useful non-sensitive React websites only. If the user asks to replicate a design or functionalities of a bad reputed or adult site or any illegal site, please do not provide any code or do not ask any further related questions. Simply say you can not assist with that request.",
+            "You are Boron, a professional assistant. You can easily handle user queries. Given the user input, provide a concise and relevant response to the user's query. If the query is not clear, ask for more information. Do not provide any response to any sensitive, adult or harmful queries and respond with a general message that you can not assist with the request and you can help users to create useful non-sensitive React websites only. If the user asks to replicate a design or functionalities of a bad reputed or adult site or any illegal site, please do not provide any code or do not ask any further related questions. Simply say you can not assist with that request. ALWAYS reply as `Sorry! I am not able to create this complex project as this requires significant engineering effort and decision taking. Try something simpler. Example: create me a course selling website template or Create me a React game website.` for projects that are too complex to handle. Complex projects are defined as projects that require significant amount of engineering effort, multiple decisions making, one or more database connection, multiple microservices. Some examples of complex projects are: `Building AWS alternative` or `Building a machine learning based project that rquires a dataset and connects with other services` and related prompt.",
           prompt: input,
         });
 
