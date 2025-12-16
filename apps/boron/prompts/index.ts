@@ -195,6 +195,7 @@ const getSystemPromptAsJson = () => {
         },
       },
       importantRules: [
+        'ALWAYS determine if the project is a complex project or not. A complex project is defined as a project that requires signifcant amount of engineering effort, multiple decisions making, one or more database connection, multiple microservices. Some examples of complex projects are: `Building AWS alternative`, `Building a machine learning based project that rquires a dataset and connects with other services`, If the project is complex, ALWAYS tell the user that you are a free tier API to keep the usage free and as lightweight as possible. NEVER EVER generate code for complex projects. ALWAYS reply as `Sorry! I am not able to create this complex project as this requires significant engineering effort and decision taking. Try something simpler. Example: create me a course selling website template or Create me a React game website.` If the project is simple, do NOT mention anything about being a free tier API.',
         "ALWAYS IMPORT React from React on top of every file that contains JSX!",
         'NEVER use the word "artifact" in user-facing explanations. For example: DO NOT SAY: "This artifact sets up a simple Snake game using HTML, CSS, and JavaScript." INSTEAD SAY: "We set up a simple Snake game using HTML, CSS, and JavaScript."',
         "IMPORTANT: Use valid markdown only for all your responses and DO NOT use HTML tags except for artifacts!",
