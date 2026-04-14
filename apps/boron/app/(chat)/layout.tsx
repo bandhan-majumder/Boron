@@ -34,7 +34,7 @@ export default async function ChatLayout({
     >
       <AppSidebar session={session} />
       <SidebarInset className="bg-[#272725] h-screen flex flex-col overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        {/* <header className="flex h-16 shrink-0 items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1 bg-white border-none" />
           <Separator
             orientation="vertical"
@@ -52,7 +52,7 @@ export default async function ChatLayout({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-        </header>
+        </header> */}
         <div className="flex-1 overflow-hidden">{children}</div>
       </SidebarInset>
     </SidebarProvider>
