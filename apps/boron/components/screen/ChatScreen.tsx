@@ -20,7 +20,7 @@ import {
   PromptInputTools,
 } from "../ai-elements/prompt-input";
 import { readStreamableValue } from "@ai-sdk/rsc";
-import { FileText, Loader2, Maximize2, User, Bot, EyeOff } from "lucide-react";
+import { FileText, Loader2, Maximize2, User, Bot, EyeOff, Code } from "lucide-react";
 import { StepAfterConvert, ActionType } from "../../types";
 import EditorScreen from "../../components/screen/EditorScreen";
 import { useCreateRoom } from "../../hooks/mutation/room/useCreateRoom";
@@ -70,6 +70,7 @@ export default function ChatPage({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const finalStepsRef = useRef<StepAfterConvert[]>([]);
 
   // for newly created chat windows from the sidebar
   useEffect(() => {
@@ -206,7 +207,6 @@ export default function ChatPage({
   );
 
   const stop = useCallback(() => {
-
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -216,6 +216,19 @@ export default function ChatPage({
     setCurrentStreamingMessageId(null);
     setStreamingSteps([]);
   }, []);
+
+  const updateAssistantMessage = useCallback(
+    (
+      chatHistory: ChatMessage[],
+      assistantMessageId: number,
+      updates: Partial<ChatMessage>,
+    ) => {
+      return chatHistory.map((msg) =>
+        msg.id === assistantMessageId ? { ...msg, ...updates } : msg,
+      );
+    },
+    [],
+  );
 
   const processMessage = async (
     message: PromptInputMessage,
@@ -246,11 +259,12 @@ export default function ChatPage({
     setCurrentStreamingMessageId(assistantMessageId);
     setChatHistory((prev) => [...prev, assistantPlaceholder]);
 
+    finalStepsRef.current = [];
+
     try {
       const { object } = await generate(message.text || "", roomId);
       let hasReceivedData = false;
       let assistantResponse = "";
-      let finalSteps: StepAfterConvert[] = [];
       let isProjectCode = false;
 
       for await (const partialObject of readStreamableValue(object)) {
@@ -265,11 +279,10 @@ export default function ChatPage({
             isProjectCode = false;
 
             setChatHistory((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMessageId
-                  ? { ...msg, chat: assistantResponse, isProjectCode: false }
-                  : msg,
-              ),
+              updateAssistantMessage(prev, assistantMessageId, {
+                chat: assistantResponse,
+                isProjectCode: false,
+              }),
             );
           } else {
             assistantResponse = JSON.stringify(partialObject);
@@ -277,20 +290,15 @@ export default function ChatPage({
             const steps = convertToSteps(partialObject);
 
             if (steps.length > 0) {
-              finalSteps = steps;
+              finalStepsRef.current = steps;
               setStreamingSteps(steps);
 
               setChatHistory((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessageId
-                    ? {
-                        ...msg,
-                        chat: assistantResponse,
-                        isProjectCode: true,
-                        steps,
-                      }
-                    : msg,
-                ),
+                updateAssistantMessage(prev, assistantMessageId, {
+                  chat: assistantResponse,
+                  isProjectCode: true,
+                  steps,
+                }),
               );
             }
           }
@@ -298,16 +306,11 @@ export default function ChatPage({
       }
 
       setChatHistory((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMessageId
-            ? {
-                ...msg,
-                chat: assistantResponse,
-                isProjectCode,
-                steps: isProjectCode ? finalSteps : undefined,
-              }
-            : msg,
-        ),
+        updateAssistantMessage(prev, assistantMessageId, {
+          chat: assistantResponse,
+          isProjectCode,
+          steps: isProjectCode ? finalStepsRef.current : undefined,
+        }),
       );
 
       setText("");
@@ -583,9 +586,8 @@ export default function ChatPage({
             <div className="absolute inset-0 bg-[#1a1a1a] animate-in slide-in-from-bottom duration-300 flex flex-col">
               <div className="shrink-0 bg-[#2d2d2d] border-b border-gray-700 px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-blue-500" />
                   <span className="font-semibold text-white">
-                    Project Editor
+                    Code Editor
                   </span>
                 </div>
 

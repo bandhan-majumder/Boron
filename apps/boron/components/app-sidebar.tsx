@@ -72,11 +72,11 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
       { roomId: roomId },
       {
         onSuccess: async (data) => {
-          queryClient.invalidateQueries({ queryKey: ["getRoom"] });
           // if deleting the current chatpage, it should route me to /new
           if (currentPath.includes(roomId)) {
             router.push("/new");
           }
+          queryClient.invalidateQueries({ queryKey: ["getRoom"] });
           toast.success("Project deleted successfully!");
         },
         onError: (error) => {
