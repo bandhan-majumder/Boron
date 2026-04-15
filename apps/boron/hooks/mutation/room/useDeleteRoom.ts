@@ -1,9 +1,10 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 export function useDeleteRoom() {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationKey: ["deleteRoom"],
     mutationFn: async ({ roomId }: { roomId: string }) => {
@@ -18,6 +19,9 @@ export function useDeleteRoom() {
       } catch (err) {
         throw new Error("Internal Server Error");
       }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['getRoom'] }) // refetch fresh avl rooms
     },
     retry(failureCount, error) {
       if (failureCount < 2) {

@@ -206,7 +206,6 @@ export default function ChatPage({
   );
 
   const stop = useCallback(() => {
-    console.log("Stopping request...");
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -563,16 +562,12 @@ export default function ChatPage({
               </PromptInputBody>
               <PromptInputToolbar>
                 <PromptInputTools>
-                  <PromptInputActionMenu>
+                  {/* <PromptInputActionMenu>
                     <PromptInputActionMenuTrigger />
                     <PromptInputActionMenuContent>
                       <PromptInputActionAddAttachments />
                     </PromptInputActionMenuContent>
-                  </PromptInputActionMenu>
-                  <PromptInputSpeechButton
-                    onTranscriptionChange={setText}
-                    textareaRef={textareaRef}
-                  />
+                  </PromptInputActionMenu> */}
                 </PromptInputTools>
                 <PromptInputSubmit status={status} />
               </PromptInputToolbar>

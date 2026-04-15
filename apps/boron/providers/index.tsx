@@ -1,7 +1,3 @@
-/*
- * This is for all the providers in root layout.tsx file. SideBar is not a provider yet!
- */
-
 "use client";
 
 import { ReactNode } from "react";
