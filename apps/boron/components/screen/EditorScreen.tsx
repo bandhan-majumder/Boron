@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { FileItem, Step, StepAfterConvert } from "../../types/index";
 import { filterStepsToFiles, modifySteps } from "../../lib/step";
@@ -43,48 +43,12 @@ export default function EditorScreen({
     desktopOpen: true,
     mobileOpen: false,
   });
-  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
-    new Set(),
-  );
   const prevStepsLengthRef = useRef(0);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const isStreamingRef = useRef(isStreaming);
 
-  // Update steps when initialSteps changes (streaming)
-  useEffect(() => {
-    const modifiedSteps = modifySteps(initialSteps);
-    const newStepsCount = modifiedSteps.length;
-    const prevStepsCount = prevStepsLengthRef.current;
-
-    if (newStepsCount > prevStepsCount) {
-      const newIndices = new Set<number>();
-      for (let i = prevStepsCount; i < newStepsCount; i++) {
-        newIndices.add(i);
-      }
-      setAnimatingIndices(newIndices);
-
-      setTimeout(() => {
-        setAnimatingIndices(new Set());
-      }, 500);
-    }
-
-    setSteps(modifiedSteps);
-    prevStepsLengthRef.current = newStepsCount;
-
-    if (!selectedFile && modifiedSteps.length > 0) {
-      //@ts-ignore
-      setSelectedFile(modifiedSteps[0]);
-    }
-
-    const originalFiles = filterStepsToFiles(modifiedSteps);
-    if (originalFiles.length > 0) {
-      setFiles(originalFiles);
-    }
-  }, [initialSteps]);
-
-  // webcontainer effect - only runs when files or webcontainer changes
-  useEffect(() => {
-    if (!webcontainer || files.length === 0) return;
-
-    const createMountStructure = (files: FileItem[]): Record<string, any> => {
+  const createMountStructure = useCallback(
+    (files: FileItem[]): Record<string, any> => {
       const mountStructure: Record<string, any> = {};
 
       const processFile = (file: FileItem, isRootFolder: boolean) => {
@@ -120,17 +84,61 @@ export default function EditorScreen({
 
       files.forEach((file) => processFile(file, true));
       return mountStructure;
+    },
+    [],
+  );
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
     };
+  }, []);
+
+  // Update steps when initialSteps changes (streaming)
+  useEffect(() => {
+    isStreamingRef.current = isStreaming;
+
+    debounceRef.current = setTimeout(() => {
+      const modifiedSteps = modifySteps(initialSteps);
+      const newStepsCount = modifiedSteps.length;
+
+      setSteps(modifiedSteps);
+      prevStepsLengthRef.current = newStepsCount;
+
+      //@ts-ignore
+      const currentSelectedPath = selectedFile?.filePath;
+      const stillExists = modifiedSteps.some(
+        (s) => s.filePath === currentSelectedPath,
+      );
+
+      if (!selectedFile || !stillExists) {
+        if (modifiedSteps.length > 0) {
+          //@ts-ignore
+          setSelectedFile(modifiedSteps[0]);
+        }
+      }
+
+      const originalFiles = filterStepsToFiles(modifiedSteps);
+      setFiles(originalFiles);
+    }, 100);
+  }, [initialSteps, selectedFile]);
+
+  // webcontainer effect - only runs when files or webcontainer changes
+  useEffect(() => {
+    if (!webcontainer || files.length === 0) return;
 
     const mountStructure = createMountStructure(files);
     webcontainer.mount(mountStructure);
-  }, [files, webcontainer]);
+  }, [files, webcontainer, createMountStructure]);
 
   // Build file tree structure for UI
   const buildFileTree = () => {
     const tree: any = {};
 
-    steps.forEach((step, idx) => {
+    steps.forEach((step) => {
       if (!step.filePath) return;
 
       const parts = step.filePath.split("/");
@@ -138,7 +146,7 @@ export default function EditorScreen({
 
       parts.forEach((part, index) => {
         if (index === parts.length - 1) {
-          current[part] = { ...step, _index: idx };
+          current[part] = step;
         } else {
           if (!current[part]) {
             current[part] = {};
@@ -153,12 +161,9 @@ export default function EditorScreen({
 
   const renderTree = (node: any, path: string = "", level: number = 0) => {
     return Object.keys(node).map((key) => {
-      if (key === "_index") return null;
-
       const value = node[key];
       const isFile = value.type !== undefined;
       const fullPath = path ? `${path}/${key}` : key;
-      const isAnimating = isFile && animatingIndices.has(value._index);
 
       //@ts-ignore
       const isSelected = selectedFile?.filePath === fullPath;
@@ -178,9 +183,6 @@ export default function EditorScreen({
           >
             <FileText className="w-4 h-4 shrink-0" />
             <span className="text-sm font-mono truncate">{key}</span>
-            {isAnimating && (
-              <CheckCircle2 className="w-4 h-4 text-green-500 ml-auto animate-bounce" />
-            )}
           </div>
         );
       } else {
@@ -255,12 +257,19 @@ export default function EditorScreen({
           <FolderOpen className="w-5 h-5 text-blue-500" />
           Project Files
         </h2>
-        {isStreaming && (
-          <div className="flex items-center gap-2 text-xs text-green-400">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Generating...</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-xs">
+          {isStreaming ? (
+            <div className="flex items-center gap-2 text-green-400">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Generating...</span>
+            </div>
+          ) : steps.length > 0 ? (
+            <div className="flex items-center gap-2 text-gray-400">
+              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <span>Completed</span>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden">
